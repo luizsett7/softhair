@@ -51,17 +51,19 @@ module.exports = app => {
                     return res.status(400).send(msg)
                 }
 
-                //const desc = task.desc
-                const desc = 'Abc'
-                update(req, res, desc)
+                const desc = req.params.descricao
+                const estimateAt = req.params.estimateat
+                const doneAt = req.params.doneat
+                update(req, res, desc, estimateAt, doneAt)
             })
             .catch(err => res.status(400).json(err))
     }
 
-    const update = (req, res, desc) => {        
+    const update = (req, res, desc, estimateAt, doneAt) => {        
+        //estimateAt = '2021-06-03 19:14:42.465-03'
         app.db('tasks')
             .where({ id: req.params.id, userId: req.user.id })
-            .update({ desc })
+            .update({ desc, estimateAt, doneAt })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }

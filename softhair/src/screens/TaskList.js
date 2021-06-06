@@ -32,9 +32,9 @@ export default class TaskList extends Component {
     componentDidMount = async () => {
         const stateString = await AsyncStorage.getItem('tasksState')
         const savedState = JSON.parse(stateString) || initialState
-        this.setState({
-            showDoneTasks: savedState.showDoneTasks
-        }, this.filterTasks)
+        // this.setState({
+        //     showDoneTasks: savedState.showDoneTasks
+        // }, this.filterTasks)
 
         this.loadTasks()
     }
@@ -44,20 +44,20 @@ export default class TaskList extends Component {
             const maxDate = moment()
                 .add({days: this.props.daysAhead})
                 .format('YYYY-MM-DD 23:59:59')
-            const res = await axios.get(`${server}/tasks?date=${maxDate}`)
+            const res = await axios.get(`${server}/tasks?date=${maxDate}`)            
             this.setState({ tasks: res.data }, this.filterTasks)
         } catch(e) {
             showError(e)
         }
     }
 
-    toggleFilter = () => {
-        this.setState({ showDoneTasks: !this.state.showDoneTasks }, this.filterTasks)
-    }
+    // toggleFilter = () => {
+    //     this.setState({ showDoneTasks: !this.state.showDoneTasks }, this.filterTasks)
+    // }
 
-    isPending = task => {
-        return task.doneAt === null
-    }
+    // isPending = task => {
+    //     return task.doneAt === null
+    // }
 
     filterTasks = () => {
         let visibleTasks = null
@@ -76,14 +76,14 @@ export default class TaskList extends Component {
         }))
     }
 
-    toggleTask = async taskId => {
-        try {
-            await axios.put(`${server}/tasks/${taskId}/toggle`)
-            this.loadTasks()
-        } catch (e) {
-            showError(e)
-        }
-    }
+    // toggleTask = async taskId => {
+    //     try {
+    //         await axios.put(`${server}/tasks/${taskId}/toggle`)
+    //         this.loadTasks()
+    //     } catch (e) {
+    //         showError(e)
+    //     }
+    // }
 
     addTask = async newTask => {
         if(!newTask.desc || !newTask.desc.trim()) {
@@ -94,7 +94,8 @@ export default class TaskList extends Component {
         try {
             await axios.post(`${server}/tasks`, {
                 desc: newTask.desc,
-                estimateAt: newTask.date
+                estimateAt: newTask.date,
+                doneAt: newTask.time,
             })
 
             this.setState({ showAddTask: false}, this.loadTasks)
@@ -103,15 +104,20 @@ export default class TaskList extends Component {
         }
     }
 
-    updateTask = async newTask => {                 
-      if(!newTask.desc || !newTask.desc.trim()) {
+    teste = newTask => {                   
+        this.props.navigation.navigate('EditTask', {id: newTask.id, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: newTask.doneAt})
+    }
+
+    updateTask = async newTask => {     
+     
+     if(!newTask.desc || !newTask.desc.trim()) {
           Alert.alert('Dados inválidos', 'Descrição não informada!')
           return
       }
 
       try {
-          await axios.put(`${server}/tasks/${newTask.id}/update`, {
-              desc: 'teste123',
+          await axios.put(`${server}/tasks/${newTask.id}/${newTask.desc}/update`, {
+              descricao: 'teste123',
             //   estimateAt: newTask.date
           })
           this.loadTasks()
@@ -180,7 +186,7 @@ export default class TaskList extends Component {
                 <View style={styles.taskList}>
                     <FlatList data={this.state.visibleTasks}
                         keyExtractor={item => `${item.id}`}
-                        renderItem={({item}) => <Task {...item} onUpdateTask={this.updateTask} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
+                        renderItem={({item}) => <Task {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
                 </View>
                 <TouchableOpacity style={[styles.addButton, {backgroundColor: this.getColor()}]} activeOpacity={0.7}
                 onPress={() => this.setState({showAddTask: true})}>

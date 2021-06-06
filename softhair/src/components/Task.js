@@ -10,12 +10,13 @@ import commonStyles from '../commonStyles'
 
 export default props => {
 
-    const doneOrNotStyle = props.doneAt != null ?
-        { textDecorationLine: 'line-through' } : {}
-
-    const date = props.doneAt ? props.doneAt : props.estimateAt
+    //const date = props.doneAt ? props.doneAt : props.estimateAt
+    const date = props.estimateAt
+    const time = props.doneAt ? props.doneAt : props.estimateAt
     const formattedDate = moment(date).locale('pt-br')
         .format('ddd, D [de] MMMM')
+    const formattedTime = moment(time).locale('pt-br')
+        .format('h:mm a')
 
     const getRightContent = () => {
         return (
@@ -39,39 +40,20 @@ export default props => {
       <Swipeable renderRightActions={getRightContent}
             renderLeftActions={getLeftContent}
             onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.id)}>
-          <View style={styles.container}>
-              <TouchableWithoutFeedback
-                onPress={() => props.onToggleTask(props.id)}>
-                  <View style={styles.checkContainer}>
-                      {getCheckView(props.doneAt)}
-                  </View>
-              </TouchableWithoutFeedback>
+          <View style={styles.container}>              
               <View>
                   <TouchableOpacity>
-                  <TouchableWithoutFeedback
+                  <TouchableWithoutFeedback                                   
                 onPress={() => props.onUpdateTask(props)}>
-                        <Text style={[styles.desc, doneOrNotStyle]}>{props.desc}</Text>
+                        <Text style={styles.desc}>{props.desc}</Text>
                     </TouchableWithoutFeedback>
                     <Text style={styles.date}>{formattedDate}</Text>
+                    <Text style={styles.date}>{formattedTime}</Text>
                   </TouchableOpacity>
               </View>
           </View>
       </Swipeable>
     )
-}
-
-function getCheckView(doneAt) {
-    if(doneAt != null){
-        return (
-            <View style={styles.done}>
-                <Icon name='check' size={20} color='#FFF'></Icon>
-            </View>
-        )
-    } else {
-        return (
-            <View style={styles.pending}></View>
-        )
-    }
 }
 
 const styles = StyleSheet.create({

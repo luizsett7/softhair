@@ -13,7 +13,7 @@ import moment from "moment";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import commonStyles from "../commonStyles";
 
-const initialState = { desc: '', date: new Date(), showDatePicker: false}
+const initialState = { desc: '', date: new Date(), time: new Date(), showDatePicker: false, showDateTimePicker: false}
 
 export default class AddTask extends Component {
 
@@ -24,7 +24,8 @@ export default class AddTask extends Component {
   save = () => {
     const newTask = {
       desc: this.state.desc,
-      date: this.state.date
+      date: this.state.date,
+      time: this.state.time
     }
 
     this.props.onSave && this.props.onSave(newTask)
@@ -53,6 +54,30 @@ export default class AddTask extends Component {
     return datePicker
   }
 
+  getDateTimePicker = () => {      
+    let dateTimePicker = <DateTimePicker
+     value={this.state.time}  
+     is24Hour={true}
+     display="default"              
+     onChange={(_,time) => this.setState({time, showDateTimePicker: false})}
+     mode='time'/>
+     const dateString = moment(this.state.time).format('h:mm:ss a')
+     if(Platform.OS === 'android'){
+        dateTimePicker = (
+         <View>
+           <TouchableOpacity onPress={() => this.setState({showDateTimePicker: true})}>
+               <Text style={styles.date}>
+                 {dateString}
+               </Text>
+           </TouchableOpacity>
+           {/*renderização condicional se a primeira condição for true, é renderizado pela segunda*/}
+           {this.state.showDateTimePicker && dateTimePicker}
+         </View>
+       )
+     }
+     return dateTimePicker
+   }  
+
   render() {
     return (
       <Modal transparent={true} visible={this.props.isVisible}
@@ -68,6 +93,7 @@ export default class AddTask extends Component {
                      onChangeText={desc => this.setState({desc})}
             value={this.state.desc}/>
           {this.getDatePicker()}
+          {this.getDateTimePicker()}
           <View style={styles.buttons}>
             <TouchableOpacity onPress={this.props.onCancel}>
               <Text style={styles.button}>Cancelar</Text>

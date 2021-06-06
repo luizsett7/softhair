@@ -11,6 +11,7 @@ import ServiceList from './screens/ServiceList'
 import AddService from './screens/AddService'
 import PermissionList from './screens/PermissionList'
 import AddPermission from './screens/AddPermission'
+import EditTask from './screens/EditTask'
 
 const mainRoutes = {
     Auth: {
@@ -56,6 +57,10 @@ const mainRoutes = {
     AddPermission: {
         name: 'AddPermission',
         screen: AddPermission
+    },
+    EditTask: {
+        name: 'EditTask',
+        screen: EditTask
     }
 }
 
