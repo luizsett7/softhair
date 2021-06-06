@@ -15,6 +15,7 @@ import weekImage from '../../assets/imgs/week.jpg'
 import monthImage from '../../assets/imgs/month.jpg'
 import Task from '../components/Task'
 import AddTask from "./AddTask"
+import { ScrollView } from 'react-native-gesture-handler';
 
 const initialState = {
     showDoneTasks: true,
@@ -159,34 +160,30 @@ export default class TaskList extends Component {
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <View style={styles.container}>
-              <TouchableOpacity style={{ padding: 10 }} 
+                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
+                <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.openDrawer()}>
+                                <Icon name='bars'
+                                    size={20} color={commonStyles.colors.primary} />
+                            </TouchableOpacity>
+                    <TouchableOpacity style={{ padding: 15 }} 
                         navigation={this.props.navigation} onPress={() => this.setState({showAddTask: true})}>
                             <Text>Novo Agendamento</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity>                        
+                </View>
                 <AddTask isVisible={this.state.showAddTask}
                  onCancel={() => this.setState({showAddTask: false})}
                 onSave={this.addTask}/>
                 <ImageBackground source={this.getImage()}
-                    style={styles.background}>
-                        <View style={ styles.iconBar }>
-                            <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
-                                <Icon name='bars'
-                                    size={20} color={commonStyles.colors.secondary} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={this.toggleFilter}>
-                                <Icon name={this.state.showDoneTasks ? 'eye' : 'eye-slash'}
-                                    size={20} color={commonStyles.colors.secondary} />
-                            </TouchableOpacity>
-                        </View>
+                    style={styles.background}>                        
                     <View style={styles.titleBar}>
                         <Text style={styles.title}>{this.props.title}</Text>
                         <Text style={styles.subtitle}>{today}</Text>
                     </View>
                 </ImageBackground>
-                <View style={styles.taskList}>
-                    <FlatList data={this.state.visibleTasks}
-                        keyExtractor={item => `${item.id}`}
-                        renderItem={({item}) => <Task {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
+                <View style={styles.taskList}>                
+                        <FlatList data={this.state.visibleTasks}
+                            keyExtractor={item => `${item.id}`}
+                            renderItem={({item}) => <Task {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
                 </View>
                 <TouchableOpacity style={[styles.addButton, {backgroundColor: this.getColor()}]} activeOpacity={0.7}
                 onPress={() => this.setState({showAddTask: true})}>
@@ -205,7 +202,10 @@ const styles = StyleSheet.create({
         flexGrow: 3
     },
     taskList: {
-        flexGrow: 7
+        flex: 1,
+        flexGrow: 7,
+        marginLeft: 10,
+        marginRight: 10
     },
     titleBar: {
         flex: 1,

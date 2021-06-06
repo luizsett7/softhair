@@ -8,7 +8,7 @@ import axios from 'axios'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 
-import { server, showError } from '../common' 
+import { server, showError } from '../common'
 import commonStyles from '../commonStyles'
 import todayImage from '../../assets/imgs/today.jpg'
 import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
@@ -24,18 +24,18 @@ const initialState = {
     tasks: [],
     //date: new Date(), 
     showDatePicker: false,
-    showDateTimePicker: false 
+    showDateTimePicker: false
 }
 
-export default class EditTask extends Component {    
+export default class EditTask extends Component {
 
     state = {
         ...initialState,
         date: this.props.navigation.getParam('estimateAt'),
         time: this.props.navigation.getParam('doneAt'),
         desc: this.props.navigation.getParam('desc')
-    }    
-    
+    }
+
 
     componentDidMount = async () => {
         const stateString = await AsyncStorage.getItem('tasksState')
@@ -44,17 +44,17 @@ export default class EditTask extends Component {
             showDoneTasks: savedState.showDoneTasks
         }, this.filterTasks)
 
-        this.loadTasks()        
+        this.loadTasks()
     }
 
     loadTasks = async () => {
         try {
             const maxDate = moment()
-                .add({days: this.props.daysAhead})
+                .add({ days: this.props.daysAhead })
                 .format('YYYY-MM-DD 23:59:59')
             const res = await axios.get(`${server}/tasks?date=${maxDate}`)
             this.setState({ tasks: res.data }, this.filterTasks)
-        } catch(e) {
+        } catch (e) {
             showError(e)
         }
     }
@@ -65,7 +65,7 @@ export default class EditTask extends Component {
 
     filterTasks = () => {
         let visibleTasks = null
-        if(this.state.showDoneTasks){
+        if (this.state.showDoneTasks) {
             visibleTasks = [...this.state.tasks]
         } else {
             // const pending = function(task){
@@ -74,7 +74,7 @@ export default class EditTask extends Component {
             visibleTasks = this.state.tasks.filter(this.isPending)
         }
 
-        this.setState({visibleTasks})
+        this.setState({ visibleTasks })
         AsyncStorage.setItem('tasksState', JSON.stringify({
             showDoneTasks: this.state.showDoneTasks
         }))
@@ -90,7 +90,7 @@ export default class EditTask extends Component {
     }
 
     addTask = async newTask => {
-        if(!newTask.desc || !newTask.desc.trim()) {
+        if (!newTask.desc || !newTask.desc.trim()) {
             Alert.alert('Dados inválidos', 'Descrição não informada!')
             return
         }
@@ -101,8 +101,8 @@ export default class EditTask extends Component {
                 estimateAt: newTask.date
             })
 
-            this.setState({ showAddTask: false}, this.loadTasks)
-        } catch(e) {
+            this.setState({ showAddTask: false }, this.loadTasks)
+        } catch (e) {
             showError(e)
         }
     }
@@ -113,21 +113,21 @@ export default class EditTask extends Component {
         Alert.alert(`${message}`)
     }
 
-    updateTask = async newTask => {         
-     if(!newTask.nova_descricao || !newTask.nova_descricao.trim()) {
-          Alert.alert('Dados inválidos', 'Descrição não informada!')
-          return
-      }
+    updateTask = async newTask => {
+        if (!newTask.nova_descricao || !newTask.nova_descricao.trim()) {
+            Alert.alert('Dados inválidos', 'Descrição não informada!')
+            return
+        }
 
-      try {
-          await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/update`, {
-              
-          })       
-          this.props.navigation.navigate('Home')
-      } catch(e) {
-          showError(e)
-      }
-  }
+        try {
+            await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/update`, {
+
+            })
+            this.props.navigation.navigate('Home')
+        } catch (e) {
+            showError(e)
+        }
+    }
 
     deleteTask = async taskId => {
         try {
@@ -139,7 +139,7 @@ export default class EditTask extends Component {
     }
 
     getImage = () => {
-        switch(this.props.daysAhead){
+        switch (this.props.daysAhead) {
             case 0: return todayImage
             case 1: return tomorrowImage
             case 7: return weekImage
@@ -148,123 +148,117 @@ export default class EditTask extends Component {
     }
 
     getColor = () => {
-        switch(this.props.daysAhead){
+        switch (this.props.daysAhead) {
             case 0: return commonStyles.colors.today
             case 1: return commonStyles.colors.tomorrow
             case 7: return commonStyles.colors.week
             default: return commonStyles.colors.month
         }
     }
-    
+
 
     getDatePicker = () => {
         let data = new Date(
             Date.parse(
-              moment(this.state.date, 'YYYY-MM-DD').format(
-                'ddd MMM DD YYYY'
-              )
+                moment(this.state.date, 'YYYY-MM-DD').format(
+                    'ddd MMM DD YYYY'
+                )
             )
-        )          
+        )
         let datePicker = <DateTimePicker
-         value={data}  
-         display="default"              
-         onChange={(_,date) => this.setState({date, showDatePicker: false})}
-         mode='date'/>
-         const dateString = moment(this.state.date).format('ddd, D [de] MMMM [de] YYYY')
-         if(Platform.OS === 'android'){
-           datePicker = (
-             <View>
-               <TouchableOpacity onPress={() => this.setState({showDatePicker: true})}>
-                   <Text style={styles.date}>
-                     {dateString}
-                   </Text>
-               </TouchableOpacity>
-               {/*renderização condicional se a primeira condição for true, é renderizado pela segunda*/}
-               {this.state.showDatePicker && datePicker}
-             </View>
-           )
-         }
-         return datePicker
-       }
-       getDateTimePicker = () => {
+            value={data}
+            display="default"
+            onChange={(_, date) => this.setState({ date, showDatePicker: false })}
+            mode='date' />
+        const dateString = moment(this.state.date).format('ddd, D [de] MMMM [de] YYYY')
+        if (Platform.OS === 'android') {
+            datePicker = (
+                <View>
+                    <TouchableOpacity onPress={() => this.setState({ showDatePicker: true })}>
+                        <Text style={styles.date}>
+                            {dateString}
+                        </Text>
+                    </TouchableOpacity>
+                    {/*renderização condicional se a primeira condição for true, é renderizado pela segunda*/}
+                    {this.state.showDatePicker && datePicker}
+                </View>
+            )
+        }
+        return datePicker
+    }
+    getDateTimePicker = () => {
         let time = new Date(
             Date.parse(
-              moment(this.state.time).format()            
+                moment(this.state.time).format()
             )
-        )          
+        )
         let dateTimePicker = <DateTimePicker
-         value={time}  
-         is24Hour={true}
-         display="default"              
-         onChange={(_,time) => this.setState({time, showDateTimePicker: false})}
-         mode='time'/>
-         const dateString = moment(this.state.time).format('h:mm:ss a')
-         if(Platform.OS === 'android'){
+            value={time}
+            is24Hour={true}
+            display="default"
+            onChange={(_, time) => this.setState({ time, showDateTimePicker: false })}
+            mode='time' />
+        const dateString = moment(this.state.time).format('h:mm:ss a')
+        if (Platform.OS === 'android') {
             dateTimePicker = (
-             <View>
-               <TouchableOpacity onPress={() => this.setState({showDateTimePicker: true})}>
-                   <Text style={styles.date}>
-                     {dateString}
-                   </Text>
-               </TouchableOpacity>
-               {/*renderização condicional se a primeira condição for true, é renderizado pela segunda*/}
-               {this.state.showDateTimePicker && dateTimePicker}
-             </View>
-           )
-         }
-         return dateTimePicker
-       }   
-    
+                <View>
+                    <TouchableOpacity onPress={() => this.setState({ showDateTimePicker: true })}>
+                        <Text style={styles.date}>
+                            {dateString}
+                        </Text>
+                    </TouchableOpacity>
+                    {/*renderização condicional se a primeira condição for true, é renderizado pela segunda*/}
+                    {this.state.showDateTimePicker && dateTimePicker}
+                </View>
+            )
+        }
+        return dateTimePicker
+    }
+
     render() {
         const { navigation } = this.props
         const id = navigation.getParam('id', 'sem id')
-        const descricao = navigation.getParam('desc', 'sem desc')               
+        const descricao = navigation.getParam('desc', 'sem desc')
         const nova_descricao = this.state.desc
-        let estimateAt = this.state.date  
-        estimateAt = moment(estimateAt).format()             
-        let doneAt = this.state.time  
-        doneAt = moment(doneAt).format()                  
+        let estimateAt = this.state.date
+        estimateAt = moment(estimateAt).format()
+        let doneAt = this.state.time
+        doneAt = moment(doneAt).format()
         //const estimateAt = '2021-06-02 19:14:42.465-03'
-        const task = {id, nova_descricao, estimateAt, doneAt}
+        const task = { id, nova_descricao, estimateAt, doneAt }
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <View style={styles.container}>
-              <TouchableOpacity style={{ padding: 10 }} 
-                        navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
-                            <Text>Editar</Text>
-                        </TouchableOpacity>                        
+                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.navigate('Home')}>
+                        <Text>Voltar</Text>
+                    </TouchableOpacity>
+                </View>
                 <AddTask isVisible={this.state.showAddTask}
-                 onCancel={() => this.setState({showAddTask: false})}
-                onSave={this.addTask}/>
+                    onCancel={() => this.setState({ showAddTask: false })}
+                    onSave={this.addTask} />
                 <ImageBackground source={this.getImage()}
                     style={styles.background}>
-                        <View style={ styles.iconBar }>
-                            <TouchableOpacity onPress={() => this.props.navigation.openDrawer()}>
-                                <Icon name='bars'
-                                    size={20} color={commonStyles.colors.secondary} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={this.toggleFilter}>
-                                <Icon name={this.state.showDoneTasks ? 'eye' : 'eye-slash'}
-                                    size={20} color={commonStyles.colors.secondary} />
-                            </TouchableOpacity>
-                        </View>
                     <View style={styles.titleBar}>
                         <Text style={styles.title}>{this.props.title}</Text>
                         <Text style={styles.subtitle}>{today}</Text>
                     </View>
                 </ImageBackground>
-                <View style={styles.taskList}>                
-                <TextInput style={styles.input}
-            placeholder="Informe a descrição..."
-                     onChangeText={desc => this.setState({desc})}
-            value={this.state.desc}/>            
-            {this.getDatePicker()} 
-            {this.getDateTimePicker()}           
+                <View style={styles.edit}>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Descrição</Text>
+                    <TextInput style={styles.input}
+                        placeholder="Informe a descrição..."
+                        onChangeText={desc => this.setState({ desc })}
+                        value={this.state.desc} />
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Data</Text>
+                    <View style={styles.date}>{this.getDatePicker()}</View>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Hora</Text>
+                    <View style={styles.time}>{this.getDateTimePicker()}</View>
+                    <TouchableOpacity
+                        navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
+                        <Text style={styles.save}>Salvar</Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={[styles.addButton, {backgroundColor: this.getColor()}]} activeOpacity={0.7}
-                onPress={() => this.setState({showAddTask: true})}>
-                <Icon name="plus" size={20} color={commonStyles.colors.primary} />
-            </TouchableOpacity>
             </View>
         )
     }
@@ -277,14 +271,54 @@ const styles = StyleSheet.create({
     background: {
         flexGrow: 3
     },
-    taskList: {
-        flexGrow: 7
+    edit: {
+        flex: 1,
+        flexGrow: 7,
+    },
+    input: {
+        width: '95%',
+        fontSize: 15,
+        marginTop: 15,
+        marginLeft: 10,
+        fontFamily: commonStyles.fontFamily,
+        backgroundColor: '#fbc4ab',
+        borderRadius: 5
+    },
+    save: {
+        width: '95%',
+        height: 40,
+        fontSize: 20,
+        marginTop: 25,
+        marginLeft: 10,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontFamily: commonStyles.fontFamily,
+        backgroundColor: '#f08080',
+        borderRadius: 5
+    },
+    date: {
+        width: '95%',
+        fontSize: 15,
+        marginLeft: 10,
+        marginTop: 10,
+        fontFamily: commonStyles.fontFamily,
+        backgroundColor: '#fbc4ab',
+        borderRadius: 5
+    },
+    time: {
+        width: '95%',
+        fontSize: 15,
+        marginLeft: 10,
+        fontFamily: commonStyles.fontFamily,
+        marginTop: 10,
+        backgroundColor: '#fbc4ab',
+        borderRadius: 5
     },
     titleBar: {
         flex: 1,
         justifyContent: 'flex-end'
     },
-    title :{
+    title: {
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.secondary,
         fontSize: 50,
