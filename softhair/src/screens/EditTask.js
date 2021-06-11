@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { View, Text, Alert, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Touchable, Button, TextInput } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import RNPickerSelect from 'react-native-picker-select';
 
 import AsyncStorage from "@react-native-community/async-storage";
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -233,7 +234,7 @@ export default class EditTask extends Component {
                     <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.navigate('Home')}>
                         <Text>Voltar</Text>
                     </TouchableOpacity>
-                </View>
+                </View>                
                 <AddTask isVisible={this.state.showAddTask}
                     onCancel={() => this.setState({ showAddTask: false })}
                     onSave={this.addTask} />
@@ -253,7 +254,18 @@ export default class EditTask extends Component {
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Data</Text>
                     <View style={styles.date}>{this.getDatePicker()}</View>
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Hora</Text>
-                    <View style={styles.time}>{this.getDateTimePicker()}</View>
+                    <View style={styles.time}>{this.getDateTimePicker()}</View>  
+                    <View style={{marginTop: 10, marginBottom: 10}}>
+                        <RNPickerSelect
+                            placeholder={{ label: "Select you favourite language", value: null }}
+                            onValueChange={(value) => console.log(value)}
+                            items={[
+                                { label: 'Football', value: 'football' },
+                                { label: 'Baseball', value: 'baseball' },
+                                { label: 'Hockey', value: 'hockey' },
+                            ]}
+                        />                       
+                    </View>                  
                     <TouchableOpacity
                         navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
                         <Text style={styles.save}>Salvar</Text>

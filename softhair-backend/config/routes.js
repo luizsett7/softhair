@@ -17,5 +17,14 @@ module.exports = app => {
 
     app.route('/tasks/:id/:descricao/:estimateat/:doneat/update')
         .all(app.config.passport.authenticate())
-        .put(app.api.task.seleciona)   
+        .put(app.api.task.seleciona)  
+        
+    app.route('/employees')
+        .all(app.config.passport.authenticate())
+        .get(app.api.employee.getEmployees)
+        .post(app.api.employee.save)
+
+        app.route('/employees/:id/:nome/:cargo/update')
+        .all(app.config.passport.authenticate())
+        .put(app.api.task.seleciona)  
 }

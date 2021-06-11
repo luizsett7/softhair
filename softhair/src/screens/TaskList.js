@@ -168,7 +168,11 @@ export default class TaskList extends Component {
                     <TouchableOpacity style={{ padding: 15 }} 
                         navigation={this.props.navigation} onPress={() => this.setState({showAddTask: true})}>
                             <Text>Novo Agendamento</Text>
-                        </TouchableOpacity>                        
+                        </TouchableOpacity> 
+                        <TouchableOpacity style={{ padding: 15 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('EmployeeList')  }>
+                            <Text>Colaboradores</Text>
+                        </TouchableOpacity>                                              
                 </View>
                 <AddTask isVisible={this.state.showAddTask}
                  onCancel={() => this.setState({showAddTask: false})}

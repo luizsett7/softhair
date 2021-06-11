@@ -25,13 +25,26 @@ module.exports = app => {
         if (!req.body.desc.trim()) {
             return res.status(400).send('Descrição é um campo obrigatório')
         }
+        req.body.userId = req.user.id        
 
-        req.body.userId = req.user.id
-
-        app.db('tasks')
-            .insert(req.body)
-            .then(_ => res.status(204).send())
-            .catch(err => res.status(400).json(err))
+        console.log(req.body.estimateAt)                
+                app.db('tasks')
+                .where('userId', '=', `${req.body.userId}`)
+                .where('estimateAt', '=', `${req.body.estimateAt}`) 
+                .where('doneAt', '=', `${req.body.doneAt}`)
+                .first() 
+                .then((row) => {                                        
+                    if(row == undefined){ 
+                        console.log("insert")
+                        app.db('tasks')
+                        .insert(req.body)
+                        .then(_ => res.status(204).send())
+                        .catch(err => res.status(400).json(err)) 
+                    }else{                   
+                        console.log("existe")                       
+                        return res.status(400).json("Agendamento não permitido")                                                                       
+                    }
+                })
     }
 
     const remove = (req, res) => {

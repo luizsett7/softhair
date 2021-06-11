@@ -915,7 +915,9 @@ int layout redbox_view 0x7f0a0027
 int layout select_dialog_item_material 0x7f0a0028
 int layout select_dialog_multichoice_material 0x7f0a0029
 int layout select_dialog_singlechoice_material 0x7f0a002a
-int layout support_simple_spinner_dropdown_item 0x7f0a002b
+int layout simple_spinner_dropdown_item 0x7f0a002b
+int layout simple_spinner_item 0x7f0a002c
+int layout support_simple_spinner_dropdown_item 0x7f0a002d
 int mipmap ic_launcher 0x7f0b0000
 int mipmap ic_launcher_round 0x7f0b0001
 int string abc_action_bar_home_description 0x7f0c0000

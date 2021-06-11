@@ -14,6 +14,8 @@ import AddService from './screens/AddService'
 import PermissionList from './screens/PermissionList'
 import AddPermission from './screens/AddPermission'
 import EditTask from './screens/EditTask'
+import EditEmployee from './screens/EditEmployee'
+import EmployeeList from './screens/EmployeeList'
 
 import AuthOrApp from './screens/AuthOrApp'
 import Menu from './screens/Menu'
@@ -120,7 +122,15 @@ const mainRoutes = {
     EditTask: {
         name: 'EditTask',
         screen: EditTask
-    }
+    },
+    EmployeeList: {
+        name: 'EmployeeList',
+        screen: EmployeeList
+    },
+    EditEmployee: {
+        name: 'EditEmployee',
+        screen: EditEmployee
+    },
 }
 
 const mainNavigator = createSwitchNavigator(mainRoutes, {
