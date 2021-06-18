@@ -9,13 +9,14 @@ module.exports = app => {
 
     app.route('/tasks/:id')
         .all(app.config.passport.authenticate())
+        .get(app.api.task.getTask)
         .delete(app.api.task.remove)
 
     app.route('/tasks/:id/toggle')
         .all(app.config.passport.authenticate())
         .put(app.api.task.toggleTask)
 
-    app.route('/tasks/:id/:descricao/:estimateat/:doneat/update')
+    app.route('/tasks/:id/:descricao/:estimateat/:doneat/:employee/update')
         .all(app.config.passport.authenticate())
         .put(app.api.task.seleciona)  
         
@@ -24,7 +25,11 @@ module.exports = app => {
         .get(app.api.employee.getEmployees)
         .post(app.api.employee.save)
 
+        app.route('/employees/:id')
+        .all(app.config.passport.authenticate())
+        .delete(app.api.employee.remove)
+
         app.route('/employees/:id/:nome/:cargo/update')
         .all(app.config.passport.authenticate())
-        .put(app.api.task.seleciona)  
+        .put(app.api.employee.seleciona)  
 }

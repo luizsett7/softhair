@@ -120,10 +120,10 @@ export default class EditEmployee extends Component {
         }
 
         try {
-            await axios.put(`${server}/tasks/${newTask.id}/${newTask.novo_nome}/${newTask.novo_cargo}/update`, {
+            await axios.put(`${server}/employees/${newTask.id}/${newTask.novo_nome}/${newTask.novo_cargo}/update`, {
 
             })
-            this.props.navigation.navigate('Home')
+            this.props.navigation.navigate('EmployeeList')
         } catch (e) {
             showError(e)
         }

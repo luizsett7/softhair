@@ -45,7 +45,7 @@ export default props => {
                   <TouchableOpacity>
                   <TouchableWithoutFeedback                                   
                 onPress={() => props.onUpdateTask(props)}>
-                        <Text style={styles.desc}>{props.desc}</Text>
+                        <Text style={styles.desc}>{props.desc} - ID Prestador: {props.employeeId}</Text>
                     </TouchableWithoutFeedback>
                     <Text style={styles.date}>{formattedDate}</Text>
                     <Text style={styles.date}>{formattedTime}</Text>

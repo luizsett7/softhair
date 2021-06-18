@@ -106,7 +106,7 @@ export default class TaskList extends Component {
     }
 
     teste = newTask => {                   
-        this.props.navigation.navigate('EditTask', {id: newTask.id, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: newTask.doneAt})
+        this.props.navigation.navigate('EditTask', {id: newTask.id, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: newTask.doneAt, employeeId: newTask.employeeId})
     }
 
     updateTask = async newTask => {     

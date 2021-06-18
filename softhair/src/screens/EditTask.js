@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { View, Text, Alert, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Touchable, Button, TextInput } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import RNPickerSelect from 'react-native-picker-select';
+//import ModalDropdown from 'react-native-modal-dropdown';
+import {Picker} from '@react-native-picker/picker';
 
 import AsyncStorage from "@react-native-community/async-storage";
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -23,18 +24,20 @@ const initialState = {
     showAddTask: false,
     visibleTasks: [],
     tasks: [],
+    employees: [],
     //date: new Date(), 
     showDatePicker: false,
-    showDateTimePicker: false
+    showDateTimePicker: false,   
+    employee: 1
 }
 
-export default class EditTask extends Component {
-
+export default class EditTask extends Component { 
+    
     state = {
         ...initialState,
         date: this.props.navigation.getParam('estimateAt'),
         time: this.props.navigation.getParam('doneAt'),
-        desc: this.props.navigation.getParam('desc')
+        desc: this.props.navigation.getParam('desc'),
     }
 
 
@@ -46,7 +49,35 @@ export default class EditTask extends Component {
         }, this.filterTasks)
 
         this.loadTasks()
+        this.loadEmployee()
+        this.loadEmployeeId()
     }
+
+    loadEmployee = async() => {
+        try {
+        const res = await axios.get(`${server}/employees`)        
+        this.setState({ employees: res.data })                 
+    } catch (e) {
+        showError(e)
+    }
+    }
+
+    loadEmployeeId = async() => {
+        try {
+        const { navigation } = this.props
+        let identificador = navigation.getParam('id', 'sem id')
+        console.log("identificador"+identificador) 
+        const res = await axios.get(`${server}/tasks/${identificador}`)                  
+        res.data.map((v)=>{                                                   
+            this.setState({ employee: v.employeeId }) 
+            console.log(v)                
+           })              
+           console.log(res.data)
+    } catch (e) {
+        showError(e)
+    }
+    }
+
 
     loadTasks = async () => {
         try {
@@ -121,7 +152,7 @@ export default class EditTask extends Component {
         }
 
         try {
-            await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/update`, {
+            await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/${newTask.employee}/update`, {
 
             })
             this.props.navigation.navigate('Home')
@@ -225,8 +256,11 @@ export default class EditTask extends Component {
         estimateAt = moment(estimateAt).format()
         let doneAt = this.state.time
         doneAt = moment(doneAt).format()
-        //const estimateAt = '2021-06-02 19:14:42.465-03'
-        const task = { id, nova_descricao, estimateAt, doneAt }
+        employee = this.state.employee
+        if(employee == null){
+            employee = 1
+        }        
+        const task = { id, nova_descricao, estimateAt, doneAt, employee }
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <View style={styles.container}>
@@ -255,16 +289,15 @@ export default class EditTask extends Component {
                     <View style={styles.date}>{this.getDatePicker()}</View>
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Hora</Text>
                     <View style={styles.time}>{this.getDateTimePicker()}</View>  
-                    <View style={{marginTop: 10, marginBottom: 10}}>
-                        <RNPickerSelect
-                            placeholder={{ label: "Select you favourite language", value: null }}
-                            onValueChange={(value) => console.log(value)}
-                            items={[
-                                { label: 'Football', value: 'football' },
-                                { label: 'Baseball', value: 'baseball' },
-                                { label: 'Hockey', value: 'hockey' },
-                            ]}
-                        />                       
+                    <View style={{marginTop: 10, marginBottom: 10}}>                        
+                    <Picker style={{width: '100%', height: 20}}
+                        selectedValue={this.state.employee}
+                        onValueChange={(prestador, itemIndex) => (itemIndex)}>{                                                                                                                                                                                                                             
+                            this.state.employees.map( (v)=>{                                                                               
+                             return <Picker.Item key={v.id} label={v.nome} value={v.id} />
+                            })
+                           }                                                 
+                        </Picker>                                                              
                     </View>                  
                     <TouchableOpacity
                         navigation={this.props.navigation} onPress={() => this.updateTask(task)}>

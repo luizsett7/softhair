@@ -9,21 +9,19 @@ module.exports = app => {
     }
 
     const save = (req, res) => {
-        if (!req.body.desc.trim()) {
+        if (!req.body.nome.trim()) {
             return res.status(400).send('Descrição é um campo obrigatório')
         }
-
-        req.body.userId = req.user.id
-
-        app.db('tasks')
+        
+        app.db('employees')
             .insert(req.body)
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
 
     const remove = (req, res) => {
-        app.db('tasks')
-            .where({ id: req.params.id, userId: req.user.id })
+        app.db('employees')
+            .where({ id: req.params.id })
             .del()
             .then(rowsDeleted => {
                 if (rowsDeleted > 0) {
@@ -37,28 +35,25 @@ module.exports = app => {
     }
 
     const seleciona = (req, res) => {
-        app.db('tasks')
-            .where({ id: req.params.id, userId: req.user.id })
+        app.db('employees')
+            .where({ id: req.params.id })
             .first()
             .then(task => {
                 if (!task) {
                     const msg = `Task com id ${req.params.id} não encontrada.`
                     return res.status(400).send(msg)
                 }
-
-                const desc = req.params.descricao
-                const estimateAt = req.params.estimateat
-                const doneAt = req.params.doneat
-                update(req, res, desc, estimateAt, doneAt)
+                const nome = req.params.nome                
+                const cargo = req.params.cargo
+                update(req, res, nome, cargo)
             })
             .catch(err => res.status(400).json(err))
     }
 
-    const update = (req, res, desc, estimateAt, doneAt) => {
-        //estimateAt = '2021-06-03 19:14:42.465-03'
-        app.db('tasks')
-            .where({ id: req.params.id, userId: req.user.id })
-            .update({ desc, estimateAt, doneAt })
+    const update = (req, res, nome, cargo) => {        
+        app.db('employees')
+            .where({ id: req.params.id })
+            .update({ nome, cargo })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }

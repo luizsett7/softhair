@@ -6,6 +6,7 @@ exports.up = function (knex, Promise) {
         table.datetime('doneAt')
         table.integer('userId').references('id')
             .inTable('users').notNull()
+        table.integer('employeeId')
     })
 };
 

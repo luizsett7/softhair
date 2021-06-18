@@ -14,7 +14,7 @@ import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
 import weekImage from '../../assets/imgs/week.jpg'
 import monthImage from '../../assets/imgs/month.jpg'
 import Employee from '../components/Employee'
-import AddTask from "./AddTask"
+import AddEmployee from "./AddEmployee"
 import { ScrollView } from 'react-native-gesture-handler';
 
 const initialState = {
@@ -84,16 +84,15 @@ export default class EmployeeList extends Component {
     // }
 
     addTask = async newTask => {
-        if(!newTask.desc || !newTask.desc.trim()) {
-            Alert.alert('Dados inválidos', 'Descrição não informada!')
+        if(!newTask.nome || !newTask.nome.trim()) {
+            Alert.alert('Dados inválidos', 'Nome não informado!')
             return
         }
 
         try {
-            await axios.post(`${server}/tasks`, {
-                desc: newTask.desc,
-                estimateAt: newTask.date,
-                doneAt: newTask.time,
+            await axios.post(`${server}/employees`, {
+                nome: newTask.nome,
+                cargo: newTask.cargo                
             })
 
             this.setState({ showAddTask: false}, this.loadTasks)
@@ -114,7 +113,7 @@ export default class EmployeeList extends Component {
       }
 
       try {
-          await axios.put(`${server}/tasks/${newTask.id}/${newTask.desc}/update`, {
+          await axios.put(`${server}/employees/${newTask.id}/${newTask.desc}/${newTask.cargo}/update`, {
               descricao: 'teste123',
             //   estimateAt: newTask.date
           })
@@ -128,7 +127,7 @@ export default class EmployeeList extends Component {
 
     deleteTask = async taskId => {
         try {
-            await axios.delete(`${server}/tasks/${taskId}`)
+            await axios.delete(`${server}/employees/${taskId}`)
             this.loadTasks()
         } catch (e) {
             showError(e)
@@ -158,7 +157,7 @@ export default class EmployeeList extends Component {
         return (
             <View style={styles.container}>
                 <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.openDrawer()}>
+                <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.navigate('Home')}>
                                 <Icon name='bars'
                                     size={20} color={commonStyles.colors.primary} />
                             </TouchableOpacity>
@@ -167,7 +166,7 @@ export default class EmployeeList extends Component {
                             <Text>Novo Colaborador</Text>
                         </TouchableOpacity>                        
                 </View>
-                <AddTask isVisible={this.state.showAddTask}
+                <AddEmployee isVisible={this.state.showAddTask}
                  onCancel={() => this.setState({showAddTask: false})}
                 onSave={this.addTask}/>
                 <ImageBackground source={this.getImage()}
