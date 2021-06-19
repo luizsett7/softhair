@@ -65,11 +65,14 @@ export default class EditTask extends Component {
     loadEmployeeId = async() => {
         try {
         const { navigation } = this.props
-        let identificador = navigation.getParam('id', 'sem id')         
+        let identificador = navigation.getParam('id', 'sem id')
+        console.log("identificador"+identificador) 
         const res = await axios.get(`${server}/tasks/${identificador}`)                  
         res.data.map((v)=>{                                                   
-            this.setState({ employee: v.employeeId })                       
-           })                         
+            this.setState({ employee: v.employeeId }) 
+            console.log(v)                
+           })              
+           console.log(res.data)
     } catch (e) {
         showError(e)
     }
@@ -146,7 +149,7 @@ export default class EditTask extends Component {
         if (!newTask.nova_descricao || !newTask.nova_descricao.trim()) {
             Alert.alert('Dados inválidos', 'Descrição não informada!')
             return
-        }        
+        }
 
         try {
             await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/${newTask.employee}/update`, {
@@ -244,10 +247,6 @@ export default class EditTask extends Component {
         return dateTimePicker
     }
 
-    itens = () => {        
-              
-    }
-
     render() {
         const { navigation } = this.props
         const id = navigation.getParam('id', 'sem id')
@@ -257,14 +256,11 @@ export default class EditTask extends Component {
         estimateAt = moment(estimateAt).format()
         let doneAt = this.state.time
         doneAt = moment(doneAt).format()
-        let employee = this.state.employee
+        employee = this.state.employee
         if(employee == null){
             employee = 1
         }        
-        function carrega(param) {
-            task.employee = param
-        }
-        const task = { id, nova_descricao, estimateAt, doneAt, employee }        
+        const task = { id, nova_descricao, estimateAt, doneAt, employee }
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <View style={styles.container}>
@@ -296,12 +292,13 @@ export default class EditTask extends Component {
                     <View style={{marginTop: 10, marginBottom: 10}}>                        
                     <Picker style={{width: '100%', height: 20}}
                         selectedValue={this.state.employee}
-                        onValueChange={(prestador, itemIndex) =>                              
-                            carrega(prestador)                                                                                                                                                                                                                                                                                                           
-                           }>                 
-                            {this.state.employees.map( (v)=>{                                                                               
-                                return <Picker.Item key={v.id} label={v.nome} value={v.id} />                                
-                            })}
+                        onValueChange={(prestador, itemIndex) => (prestador)}>{ 
+                            () => this.setState({ employee: prestador }),  
+                            Alert.alert(`${this.state.employee}`),                                                                                                                                                                                                                          
+                            this.state.employees.map( (v)=>{                                                                               
+                             return <Picker.Item key={v.id} label={v.nome} value={v.id} />
+                            })
+                           }                                                 
                         </Picker>                                                              
                     </View>                  
                     <TouchableOpacity

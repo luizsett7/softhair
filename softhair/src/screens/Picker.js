@@ -4,7 +4,7 @@ import {Picker} from '@react-native-picker/picker';
 
 const [selectedLanguage, setSelectedLanguage] = useState();
 
-const Picker = () => {
+export default props = () => {
   return (
     <Picker
         selectedValue={selectedLanguage}
@@ -16,5 +16,3 @@ const Picker = () => {
         </Picker>
   );
 }
-
-export default Picker;
