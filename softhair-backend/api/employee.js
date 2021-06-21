@@ -2,10 +2,18 @@ const moment = require('moment')
 
 module.exports = app => {
     const getEmployees = (req, res) => {
-            app.db('employees')                    
+            app.db('clients')                    
                 .orderBy('nome')           
                 .then(employees => res.json(employees))
                 .catch(err => res.status(400).json(err))               
+    }
+
+    const getEmployee = (req, res) => {
+        app.db('clients') 
+            .where({ employee_id: req.params.id })                
+            .orderBy('nome')           
+            .then(employees => res.json(employees))
+            .catch(err => res.status(400).json(err))               
     }
 
     const save = (req, res) => {
@@ -13,15 +21,15 @@ module.exports = app => {
             return res.status(400).send('Descrição é um campo obrigatório')
         }
         
-        app.db('employees')
+        app.db('clients')
             .insert(req.body)
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
 
     const remove = (req, res) => {
-        app.db('employees')
-            .where({ id: req.params.id })
+        app.db('clients')
+            .where({ clientIdPK: req.params.id })
             .del()
             .then(rowsDeleted => {
                 if (rowsDeleted > 0) {
@@ -34,9 +42,10 @@ module.exports = app => {
             .catch(err => res.status(400).json(err))
     }
 
-    const seleciona = (req, res) => {
-        app.db('employees')
-            .where({ id: req.params.id })
+    const seleciona = (req, res) => {        
+        console.log(req.params.id)
+        app.db('clients')
+            .where({ clientIdPK: req.params.id })
             .first()
             .then(task => {
                 if (!task) {
@@ -51,8 +60,8 @@ module.exports = app => {
     }
 
     const update = (req, res, nome, cargo) => {        
-        app.db('employees')
-            .where({ id: req.params.id })
+        app.db('clients')
+            .where({ clientIdPK: req.params.id })
             .update({ nome, cargo })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
@@ -82,5 +91,5 @@ module.exports = app => {
             .catch(err => res.status(400).json(err))
     }
 
-    return { getEmployees, save, remove, seleciona, toggleTask }
+    return { getEmployees, getEmployee, save, remove, seleciona, toggleTask }
 }

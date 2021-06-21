@@ -1,6 +1,7 @@
 module.exports = app => {
     app.post('/signup', app.api.user.save)
     app.post('/signin', app.api.auth.signin)
+    app.get('/users', app.api.user.getUsers)
 
     app.route('/tasks')
         .all(app.config.passport.authenticate())
@@ -16,7 +17,7 @@ module.exports = app => {
         .all(app.config.passport.authenticate())
         .put(app.api.task.toggleTask)
 
-    app.route('/tasks/:id/:descricao/:estimateat/:doneat/:employee/update')
+    app.route('/tasks/:id/:descricao/:estimateat/:doneat/:employee/:usuario/update')
         .all(app.config.passport.authenticate())
         .put(app.api.task.seleciona)  
         
@@ -27,9 +28,15 @@ module.exports = app => {
 
         app.route('/employees/:id')
         .all(app.config.passport.authenticate())
+        .get(app.api.employee.getEmployee)
         .delete(app.api.employee.remove)
 
         app.route('/employees/:id/:nome/:cargo/update')
         .all(app.config.passport.authenticate())
-        .put(app.api.employee.seleciona)  
+        .put(app.api.employee.seleciona) 
+        
+        app.route('/roles')
+        //.all(app.config.passport.authenticate())
+        .get(app.api.role.getRoles)
+        .post(app.api.role.save)
 }

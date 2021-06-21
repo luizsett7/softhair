@@ -12,11 +12,11 @@ module.exports = app => {
 
     const strategy = new Strategy(params, (payload, done) => {
         app.db('users')
-            .where({ id: payload.id })
+            .where({ userIdPK: payload.id })            
             .first()
             .then(user => {
                 if (user) {
-                    done(null, { id: user.id, email: user.email })
+                    done(null, { id: user.userIdPK, email: user.email })
                 } else {
                     done(null, false)
                 }

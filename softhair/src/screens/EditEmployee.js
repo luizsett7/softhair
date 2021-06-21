@@ -217,7 +217,7 @@ export default class EditEmployee extends Component {
 
     render() {
         const { navigation } = this.props
-        const id = navigation.getParam('id', 'sem id')        
+        const id = navigation.getParam('id', 'sem id')                       
         const novo_nome = this.state.nome
         let novo_cargo = this.state.cargo
         const task = { id, novo_nome, novo_cargo }        
@@ -227,10 +227,7 @@ export default class EditEmployee extends Component {
                     <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.navigate('EmployeeList')}>
                         <Text>Voltar</Text>
                     </TouchableOpacity>
-                </View>                
-                <AddTask isVisible={this.state.showAddTask}
-                    onCancel={() => this.setState({ showAddTask: false })}
-                    onSave={this.addTask} />
+                </View>                                
                 <ImageBackground source={this.getImage()}
                     style={styles.background}>
                     <View style={styles.titleBar}>

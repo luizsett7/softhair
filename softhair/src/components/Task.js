@@ -45,8 +45,11 @@ export default props => {
                   <TouchableOpacity>
                   <TouchableWithoutFeedback                                   
                 onPress={() => props.onUpdateTask(props)}>
-                        <Text style={styles.desc}>{props.desc} - ID Prestador: {props.employeeId}</Text>
+                        <Text style={styles.desc}>{props.desc}</Text>
                     </TouchableWithoutFeedback>
+                    <Text style={styles.date}>Código: {props.taskIdPK}</Text>
+                    <Text style={styles.date}>Cliente: {props.nome}</Text>
+                    <Text style={styles.date}>Colaborador: {props.name}</Text>
                     <Text style={styles.date}>{formattedDate}</Text>
                     <Text style={styles.date}>{formattedTime}</Text>
                   </TouchableOpacity>
@@ -88,7 +91,8 @@ const styles = StyleSheet.create({
     desc: {
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.mainText,
-        fontSize: 15
+        fontSize: 15,
+        fontWeight: 'bold'
     },
     date: {
         fontFamily: commonStyles.fontFamily,

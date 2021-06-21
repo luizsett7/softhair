@@ -102,7 +102,7 @@ export default class EmployeeList extends Component {
     }
 
     teste = newTask => {                         
-        this.props.navigation.navigate('EditEmployee', {id: newTask.id, nome: newTask.nome, cargo: newTask.cargo})
+        this.props.navigation.navigate('EditEmployee', {id: newTask.clientIdPK, nome: newTask.nome, cargo: newTask.cargo})
     }
 
     updateTask = async newTask => {     
@@ -125,9 +125,10 @@ export default class EmployeeList extends Component {
       }
   }
 
-    deleteTask = async taskId => {
+    deleteTask = async employeeId => {
+        console.log(employeeId)
         try {
-            await axios.delete(`${server}/employees/${taskId}`)
+            await axios.delete(`${server}/employees/${employeeId}`)
             this.loadTasks()
         } catch (e) {
             showError(e)
@@ -163,7 +164,7 @@ export default class EmployeeList extends Component {
                             </TouchableOpacity>
                     <TouchableOpacity style={{ padding: 15 }} 
                         navigation={this.props.navigation} onPress={() => this.setState({showAddTask: true})}>
-                            <Text>Novo Colaborador</Text>
+                            <Text>Novo Cliente</Text>
                         </TouchableOpacity>                        
                 </View>
                 <AddEmployee isVisible={this.state.showAddTask}
@@ -178,7 +179,7 @@ export default class EmployeeList extends Component {
                 </ImageBackground>
                 <View style={styles.taskList}>                
                         <FlatList data={this.state.visibleTasks}
-                            keyExtractor={item => `${item.id}`}
+                            keyExtractor={item => `${item.clientIdPK}`}
                             renderItem={({item}) => <Employee {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
                 </View>
                 <TouchableOpacity style={[styles.addButton, {backgroundColor: this.getColor()}]} activeOpacity={0.7}

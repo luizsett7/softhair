@@ -18,6 +18,7 @@ import weekImage from '../../assets/imgs/week.jpg'
 import monthImage from '../../assets/imgs/month.jpg'
 import Task from '../components/Task'
 import AddTask from "./AddTask"
+import { ScrollView } from 'react-native-gesture-handler';
 
 const initialState = {
     showDoneTasks: true,
@@ -25,10 +26,12 @@ const initialState = {
     visibleTasks: [],
     tasks: [],
     employees: [],
+    users: [],
     //date: new Date(), 
     showDatePicker: false,
     showDateTimePicker: false,   
-    employee: 1
+    employee: 1,
+    user: 1
 }
 
 export default class EditTask extends Component { 
@@ -49,8 +52,10 @@ export default class EditTask extends Component {
         }, this.filterTasks)
 
         this.loadTasks()
+        this.loadUserId() 
         this.loadEmployee()
         this.loadEmployeeId()
+        this.loadUsers()              
     }
 
     loadEmployee = async() => {
@@ -62,13 +67,36 @@ export default class EditTask extends Component {
     }
     }
 
+    loadUsers = async() => {
+        try {
+        const res = await axios.get(`${server}/users`)        
+        this.setState({ users: res.data })                 
+    } catch (e) {
+        showError(e)
+    }
+    }
+
+    loadUserId = async() => {
+        try {
+        const { navigation } = this.props
+        let identificador = navigation.getParam('id', 'sem id')         
+        console.log(identificador)  
+        const res = await axios.get(`${server}/tasks/${identificador}`)                  
+        res.data.map((v)=>{                                                               
+            this.setState({ user: v.userIdFK })                                     
+           })                                                    
+    } catch (e) {
+        showError(e)
+    }
+    }
+
     loadEmployeeId = async() => {
         try {
         const { navigation } = this.props
         let identificador = navigation.getParam('id', 'sem id')         
         const res = await axios.get(`${server}/tasks/${identificador}`)                  
-        res.data.map((v)=>{                                                   
-            this.setState({ employee: v.employeeId })                       
+        res.data.map((v)=>{                                                             
+            this.setState({ employee: v.clientIdFK })                       
            })                         
     } catch (e) {
         showError(e)
@@ -142,14 +170,14 @@ export default class EditTask extends Component {
         Alert.alert(`${message}`)
     }
 
-    updateTask = async newTask => {
+    updateTask = async newTask => {        
         if (!newTask.nova_descricao || !newTask.nova_descricao.trim()) {
             Alert.alert('Dados inválidos', 'Descrição não informada!')
             return
         }        
 
         try {
-            await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/${newTask.employee}/update`, {
+            await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/${newTask.employee}/${newTask.user}/update`, {
 
             })
             this.props.navigation.navigate('Home')
@@ -160,7 +188,7 @@ export default class EditTask extends Component {
 
     deleteTask = async taskId => {
         try {
-            await axios.delete(`${server}/tasks/${taskId}`)
+            await axios.delete(`${server}/tasks/${taskIdPK}`)
             this.loadTasks()
         } catch (e) {
             showError(e)
@@ -244,13 +272,13 @@ export default class EditTask extends Component {
         return dateTimePicker
     }
 
-    itens = () => {        
-              
-    }
+    teste = user => {
+        this.setState({ user: user })    
+      }
 
     render() {
         const { navigation } = this.props
-        const id = navigation.getParam('id', 'sem id')
+        const id = navigation.getParam('id', 'sem id')        
         const descricao = navigation.getParam('desc', 'sem desc')
         const nova_descricao = this.state.desc
         let estimateAt = this.state.date
@@ -258,24 +286,28 @@ export default class EditTask extends Component {
         let doneAt = this.state.time
         doneAt = moment(doneAt).format()
         let employee = this.state.employee
+        let user = this.state.user
         if(employee == null){
             employee = 1
-        }        
+        }  
+        if(user == null){
+            user = 1
+        }       
         function carrega(param) {
-            task.employee = param
+            task.employee = param            
         }
-        const task = { id, nova_descricao, estimateAt, doneAt, employee }        
+        function carrega_user(param) {
+            task.user = param            
+        }
+        const task = { id, nova_descricao, estimateAt, doneAt, employee, user }        
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.navigate('Home')}>
                         <Text>Voltar</Text>
                     </TouchableOpacity>
                 </View>                
-                <AddTask isVisible={this.state.showAddTask}
-                    onCancel={() => this.setState({ showAddTask: false })}
-                    onSave={this.addTask} />
                 <ImageBackground source={this.getImage()}
                     style={styles.background}>
                     <View style={styles.titleBar}>
@@ -292,15 +324,28 @@ export default class EditTask extends Component {
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Data</Text>
                     <View style={styles.date}>{this.getDatePicker()}</View>
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Hora</Text>
-                    <View style={styles.time}>{this.getDateTimePicker()}</View>  
-                    <View style={{marginTop: 10, marginBottom: 10}}>                        
+                    <View style={styles.time}>{this.getDateTimePicker()}</View>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cliente</Text>  
+                    <View style={{marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5}}>                        
                     <Picker style={{width: '100%', height: 20}}
                         selectedValue={this.state.employee}
                         onValueChange={(prestador, itemIndex) =>                              
                             carrega(prestador)                                                                                                                                                                                                                                                                                                           
                            }>                 
                             {this.state.employees.map( (v)=>{                                                                               
-                                return <Picker.Item key={v.id} label={v.nome} value={v.id} />                                
+                                return <Picker.Item key={v.clientIdPK} label={v.nome} value={v.clientIdPK} />                                
+                            })}
+                        </Picker>                                                              
+                    </View> 
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Colaborador</Text>    
+                    <View style={{marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5}}>                        
+                    <Picker style={{width: '100%', height: 20}}
+                        selectedValue={this.state.user}
+                        onValueChange={(user, itemIndex) =>                              
+                            carrega_user(user)                                                                                                                                                                                                                                                                                                          
+                           }>                 
+                            {this.state.users.map( (v)=>{                                                                               
+                                return <Picker.Item key={v.userIdPK} label={v.name} value={v.userIdPK} />                                
                             })}
                         </Picker>                                                              
                     </View>                  
@@ -309,7 +354,7 @@ export default class EditTask extends Component {
                         <Text style={styles.save}>Salvar</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </ScrollView>
         )
     }
 }

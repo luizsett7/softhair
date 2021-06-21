@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { ImageBackground, Text, StyleSheet, View, TouchableOpacity, Alert } from 'react-native'
-
+import {Picker} from '@react-native-picker/picker';
 import axios from 'axios'
 
 import backgroundImage from '../../assets/imgs/salon.jpg'
@@ -11,16 +11,31 @@ import { server, showError, showSuccess } from '../common'
 
 const initialState = {
     name: '',
-    email: 'luiz@gmail.com',
+    email: 'kelly@gmail.com',
     password: '123456',
     confirmPassword: '',
-    stageNew: false
+    stageNew: false,
+    roles: [],
+    role: 1
 }
 
 export default class Auth extends Component {
 
     state = {
         ...initialState
+    }
+
+    componentDidMount = async () => {
+        this.loadEmployee()    
+    }
+
+    loadEmployee = async() => {
+        try {
+        const res = await axios.get(`${server}/roles`)        
+        this.setState({ roles: res.data })                 
+    } catch (e) {
+        showError(e)
+    }
     }
 
     signinOrSignup = () => {
@@ -38,6 +53,7 @@ export default class Auth extends Component {
                 email: this.state.email,
                 password: this.state.password,
                 confirmPassword: this.state.confirmPassword,
+                role: this.state.role
             })    
             showSuccess('Usuário Cadastrado!')
             this.setState({ ...initialState })
@@ -59,6 +75,10 @@ export default class Auth extends Component {
             showError(e)
         }   
     }
+
+    teste = prestador => {
+        this.setState({ role: prestador })    
+      }
 
     render() {
         const validations = []
@@ -83,6 +103,19 @@ export default class Auth extends Component {
                     {this.state.stageNew &&                         
                         <AuthInput icon='user' placeholder='Nome' value={this.state.name} style={styles.input}
                     onChangeText={name => this.setState({ name: name })} />
+                    }
+                    {this.state.stageNew &&                  
+                    <View style={{width: '100%', height: 40, backgroundColor: '#FFF', borderRadius: 20, marginTop: 10}}>  
+                    <Picker style={{width: '100%', height: 40}}
+                        selectedValue={this.state.employee}
+                        onValueChange={(prestador, itemIndex) =>                              
+                            {this.teste(prestador)}                                                                                                                                                                                                                                                                                                          
+                           }>                 
+                            {this.state.roles.map( (v)=>{                                                                               
+                                return <Picker.Item key={v.roleIdPK} label={v.descricao} value={v.roleIdPK} />                                
+                            })}
+                        </Picker>                                                              
+                        </View>
                     }
                     <AuthInput icon='at' placeholder='E-mail' value={this.state.email} style={styles.input}
                     onChangeText={email => this.setState({ email: email })} />

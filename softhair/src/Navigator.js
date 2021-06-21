@@ -14,6 +14,7 @@ import AddService from './screens/AddService'
 import PermissionList from './screens/PermissionList'
 import AddPermission from './screens/AddPermission'
 import EditTask from './screens/EditTask'
+import AddTask from './screens/AddTask'
 import EditEmployee from './screens/EditEmployee'
 import EmployeeList from './screens/EmployeeList'
 
@@ -102,6 +103,10 @@ const mainRoutes = {
     AddClient: {
         name: 'AddClient',
         screen: AddClient
+    },
+    AddTask: {
+        name: 'AddTask',
+        screen: AddTask
     },
     ServiceList: {
         name: 'ServiceList',

@@ -86,7 +86,7 @@ export default class AddEmployee extends Component {
             <View style={styles.overlay} />
         </TouchableWithoutFeedback>
         <View style={styles.container}>
-          <Text style={styles.header}>Novo Prestador</Text>
+          <Text style={styles.header}>Novo Cliente</Text>
           <View>
           <TextInput style={styles.input}
             placeholder="Informe o nome..."

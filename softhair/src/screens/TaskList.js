@@ -74,7 +74,7 @@ export default class TaskList extends Component {
         this.setState({visibleTasks})
         AsyncStorage.setItem('tasksState', JSON.stringify({
             showDoneTasks: this.state.showDoneTasks
-        }))
+        }))        
     }
 
     // toggleTask = async taskId => {
@@ -105,8 +105,19 @@ export default class TaskList extends Component {
         }
     }
 
+    // loadEmployee = async employeeId => {
+    //     console.log(employeeId)
+    //     try {
+    //     const res = await axios.get(`${server}/employees/${employeeId}`)        
+    //     console.log(res.data.nome)
+    //     return res.data.nome
+    // } catch (e) {
+    //     showError(e)
+    // }
+    // }
+
     teste = newTask => {                   
-        this.props.navigation.navigate('EditTask', {id: newTask.id, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: newTask.doneAt, employeeId: newTask.employeeId})
+        this.props.navigation.navigate('EditTask', {id: newTask.taskIdPK, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: newTask.doneAt, employeeId: newTask.userIdPK, userId: newTask.userIdFK})
     }
 
     updateTask = async newTask => {     
@@ -166,17 +177,14 @@ export default class TaskList extends Component {
                                     size={20} color={commonStyles.colors.primary} />
                             </TouchableOpacity>
                     <TouchableOpacity style={{ padding: 15 }} 
-                        navigation={this.props.navigation} onPress={() => this.setState({showAddTask: true})}>
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('AddTask')}>
                             <Text>Novo Agendamento</Text>
                         </TouchableOpacity> 
                         <TouchableOpacity style={{ padding: 15 }} 
                         navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('EmployeeList')  }>
-                            <Text>Colaboradores</Text>
+                            <Text>Clientes</Text>
                         </TouchableOpacity>                                              
-                </View>
-                <AddTask isVisible={this.state.showAddTask}
-                 onCancel={() => this.setState({showAddTask: false})}
-                onSave={this.addTask}/>
+                </View>                                
                 <ImageBackground source={this.getImage()}
                     style={styles.background}>                        
                     <View style={styles.titleBar}>
@@ -186,11 +194,11 @@ export default class TaskList extends Component {
                 </ImageBackground>
                 <View style={styles.taskList}>                
                         <FlatList data={this.state.visibleTasks}
-                            keyExtractor={item => `${item.id}`}
+                            keyExtractor={item => `${item.taskIdPK}`}
                             renderItem={({item}) => <Task {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
                 </View>
                 <TouchableOpacity style={[styles.addButton, {backgroundColor: this.getColor()}]} activeOpacity={0.7}
-                onPress={() => this.setState({showAddTask: true})}>
+                navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('AddTask')}>
                 <Icon name="plus" size={20} color={commonStyles.colors.secondary} />
             </TouchableOpacity>
             </View>
