@@ -48,7 +48,7 @@ module.exports = app => {
         console.log("dataMaior"+moment(dataFinal).format())
         console.log(req.body.estimateAt)                
                 app.db('tasks')
-                .where('userIdFK', '=', `${req.body.userIdFK}`)                
+                .where('userIdFK', '=', `${req.body.userIdFK}`)                                
                 .where('doneAt', '>=', `${dataInicial}`) 
                 .where('doneAt', '<=', `${dataFinal}`)           
                 .first() 
@@ -68,7 +68,8 @@ module.exports = app => {
 
     const remove = (req, res) => {
         app.db('tasks')
-            .where({ taskIdPK: req.params.id, userIdFK: req.user.id })
+            //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
+            .where({ taskIdPK: req.params.id })
             .del()
             .then(rowsDeleted => {
                 if (rowsDeleted > 0) {
@@ -122,7 +123,7 @@ module.exports = app => {
 
     const toggleTask = (req, res) => {
         app.db('tasks')
-            .where({ task_id: req.params.id, userId: req.user.id })
+            .where({ taskIdPK: req.params.id, userId: req.user.id })
             .first()
             .then(task => {
                 if (!task) {

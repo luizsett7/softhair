@@ -140,9 +140,9 @@ export default class TaskList extends Component {
       }
   }
 
-    deleteTask = async taskId => {
+    deleteTask = async taskIdPK => {
         try {
-            await axios.delete(`${server}/tasks/${taskId}`)
+            await axios.delete(`${server}/tasks/${taskIdPK}`)
             this.loadTasks()
         } catch (e) {
             showError(e)

@@ -27,7 +27,7 @@ export default props => {
     return (
       <Swipeable renderRightActions={getRightContent}
             renderLeftActions={getLeftContent}
-            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.employee_id)}>
+            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.clientIdPK)}>
           <View style={styles.container}>              
               <View>
                   <TouchableOpacity>

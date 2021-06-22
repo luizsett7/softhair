@@ -95,7 +95,7 @@ export default class AddEmployee extends Component {
             </View>
             <View>
             <TextInput style={styles.input}
-            placeholder="Informe o cargo..."
+            placeholder="Informe o telefone..."
                      onChangeText={cargo => this.setState({cargo})}
             value={this.state.cargo}/>
             </View>

@@ -125,10 +125,10 @@ export default class EmployeeList extends Component {
       }
   }
 
-    deleteTask = async employeeId => {
-        console.log(employeeId)
+    deleteTask = async clientIdPK => {
+        console.log(clientIdPK)
         try {
-            await axios.delete(`${server}/employees/${employeeId}`)
+            await axios.delete(`${server}/employees/${clientIdPK}`)
             this.loadTasks()
         } catch (e) {
             showError(e)
