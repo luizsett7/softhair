@@ -12,10 +12,12 @@ Passos para iniciar o aplicativo
 
 1º Instalar um emulador android como por exemplo o emulador do Android Studio
 
-2º Entrar na pasta softhair-backend pelo terminal e rodar o comando npm start para iniciar o servidor
+2º Iniciar o emulador
 
-3º Entrar na pasta softhair pelo terminal e rodar o comando npx react-native start para iniciar o metro
+3º Entrar na pasta softhair-backend pelo terminal e rodar o comando npm start para iniciar o servidor
 
-4º Na pasta softhair pelo terminal rodar o comando npx react-native run-android para iniciar o aplicativo no emulador
+4º Entrar na pasta softhair pelo terminal e rodar o comando npx react-native start para iniciar o metro
+
+5º Na pasta softhair pelo terminal rodar o comando npx react-native run-android para iniciar o aplicativo no emulador
 
 
