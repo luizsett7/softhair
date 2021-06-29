@@ -15,7 +15,7 @@ module.exports = app => {
                 .then(tasks => res.json(tasks),                
                 )
                 .catch(err => res.status(400).json(err))                            
-        } else {
+        } else { 
             app.db('tasks')
                 .leftJoin('clients', 'tasks.clientIdFK', '=', 'clients.clientIdPK')
                 .leftJoin('users', 'tasks.userIdFK', '=', 'users.userIdPK')

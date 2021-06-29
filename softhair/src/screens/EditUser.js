@@ -148,7 +148,7 @@ export default class EditUser extends Component {
             return
         }
 
-        try {
+        try { 
             await axios.put(`${server}/users/${newTask.id}/${newTask.novo_nome}/${newTask.novo_email}/${newTask.novo_role}/${newTask.ative}/update`)
             this.props.navigation.navigate('UserList')
         } catch (e) {
