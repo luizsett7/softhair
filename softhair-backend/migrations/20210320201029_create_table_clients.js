@@ -4,7 +4,7 @@ exports.up = function(knex) {
         table.increments('clientIdPK').primary()
         table.string('nome').notNull()
         table.string('cargo')  
-        table.string('ativo')      
+        table.integer('ativo').defaultTo(1)     
     })
 };
 

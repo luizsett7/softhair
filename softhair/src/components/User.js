@@ -21,7 +21,7 @@ export default props => {
     const getRightContent = () => {
         return (
           <TouchableOpacity style={styles.right}
-          onPress={() => props.onDelete && props.onDelete(props.taskIdPK)}>
+          onPress={() => props.onDelete && props.onDelete(props.userIdPK)}>
               <Icon name="trash" size={30} color='#FFF' />
           </TouchableOpacity>
         )
@@ -39,18 +39,16 @@ export default props => {
     return (
       <Swipeable renderRightActions={getRightContent}
             renderLeftActions={getLeftContent}
-            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.taskIdPK)}>
+            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.userIdPK)}>
           <View style={styles.container}>              
               <View>
                   <TouchableOpacity>
                   <TouchableWithoutFeedback                                   
                 onPress={() => props.onUpdateTask(props)}>
-                        <Text style={styles.desc}>{props.taskIdPK} - {props.descricao}</Text>
+                        <Text style={styles.desc}>{props.name} - {props.ativo === 1 ? "Ativo" : "Inativo"}</Text>
                     </TouchableWithoutFeedback>
-                    <Text style={styles.date}>Valor: {props.valor}</Text>                    
-                    <Text style={styles.date}>Cliente: {props.nome}</Text>
-                    <Text style={styles.date}>Colaborador: {props.name}</Text>
-                    <Text style={styles.date}>{formattedDate} - {formattedTime}</Text>                    
+                    <Text style={styles.date}>E-mail: {props.email}</Text>                                     
+                    <Text style={styles.date}>Função: {props.descricao}</Text>                                     
                   </TouchableOpacity>
               </View>
           </View>

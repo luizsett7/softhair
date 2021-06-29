@@ -76,8 +76,8 @@ export default class Auth extends Component {
         }   
     }
 
-    teste = prestador => {
-        this.setState({ role: prestador })    
+    teste = role => {
+        this.setState({ role: role })            
       }
 
     render() {
@@ -107,9 +107,9 @@ export default class Auth extends Component {
                     {this.state.stageNew &&                  
                     <View style={{width: '100%', height: 40, backgroundColor: '#FFF', borderRadius: 20, marginTop: 10}}>  
                     <Picker style={{width: '100%', height: 40}}
-                        selectedValue={this.state.employee}
-                        onValueChange={(prestador, itemIndex) =>                              
-                            {this.teste(prestador)}                                                                                                                                                                                                                                                                                                          
+                        selectedValue={this.state.role}
+                        onValueChange={(role, itemIndex) =>                              
+                            {this.teste(role)}                                                                                                                                                                                                                                                                                                          
                            }>                 
                             {this.state.roles.map( (v)=>{                                                                               
                                 return <Picker.Item key={v.roleIdPK} label={v.descricao} value={v.roleIdPK} />                                

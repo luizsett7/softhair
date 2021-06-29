@@ -9,6 +9,7 @@ module.exports = app => {
             app.db('tasks')    
                 .leftJoin('clients', 'tasks.clientIdFK', '=', 'clients.clientIdPK')
                 .leftJoin('users', 'tasks.userIdFK', '=', 'users.userIdPK')
+                .leftJoin('services', 'tasks.serviceIdFK', '=', 'services.serviceIdPK')
                 .where('tasks.estimateAt', '<=', date)
                 .orderBy('tasks.estimateAt')           
                 .then(tasks => res.json(tasks),                
@@ -18,7 +19,8 @@ module.exports = app => {
             app.db('tasks')
                 .leftJoin('clients', 'tasks.clientIdFK', '=', 'clients.clientIdPK')
                 .leftJoin('users', 'tasks.userIdFK', '=', 'users.userIdPK')
-                .where({ userId: req.user.id })
+                .leftJoin('services', 'tasks.serviceIdFK', '=', 'services.serviceIdPK')
+                .where({ userIdFK: req.user.id })
                 .where('tasks.estimateAt', '<=', date)
                 .orderBy('tasks.estimateAt')
                 .then(tasks => res.json(tasks))
@@ -35,9 +37,9 @@ module.exports = app => {
     }
 
     const save = (req, res) => {
-        if (!req.body.desc.trim()) {
-            return res.status(400).send('Descrição é um campo obrigatório')
-        }
+        // if (!req.body.desc.trim()) {
+        //     return res.status(400).send('Descrição é um campo obrigatório')
+        // }
         console.log(req.body)
         req.body.userIdFK = req.user.id            
         let dataMenor = moment(req.body.doneAt).subtract(30, 'minutes')
@@ -46,9 +48,10 @@ module.exports = app => {
         let dataFinal = moment(dataMaior).format()
         console.log("dataMenor"+moment(dataInicial).format())
         console.log("dataMaior"+moment(dataFinal).format())
-        console.log(req.body.estimateAt)                
+        console.log("doneAt"+req.body.doneAt)
+        console.log("estimateAt"+req.body.doneAt)                        
                 app.db('tasks')
-                .where('userIdFK', '=', `${req.body.userIdFK}`)                                
+                //.where('userIdFK', '=', `${req.body.userIdFK}`)                
                 .where('doneAt', '>=', `${dataInicial}`) 
                 .where('doneAt', '<=', `${dataFinal}`)           
                 .first() 
@@ -99,16 +102,17 @@ module.exports = app => {
                 const doneAt = req.params.doneat
                 const clientIdFK = req.params.employee
                 const userIdFK = req.params.usuario                
-                update(req, res, desc, estimateAt, doneAt, clientIdFK, userIdFK)
+                const serviceIdFK = req.params.service                
+                update(req, res, desc, estimateAt, doneAt, clientIdFK, userIdFK, serviceIdFK)
             })
     }
 
-    const update = (req, res, desc, estimateAt, doneAt, clientIdFK, userIdFK) => {
+    const update = (req, res, desc, estimateAt, doneAt, clientIdFK, userIdFK, serviceIdFK) => {
         //estimateAt = '2021-06-03 19:14:42.465-03'
         app.db('tasks')
             //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
             .where({ taskIdPK: req.params.id })
-            .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK })
+            .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK, serviceIdFK })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }

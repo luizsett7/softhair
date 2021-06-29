@@ -1,224 +1,232 @@
-import React, { Component } from "react";
-import { StyleSheet, View, ScrollView, TouchableOpacity, Text } from "react-native";
-import MaterialCardWithImageAndTitle1 from "../components/MaterialCardWithImageAndTitle1";
-import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import MaterialButtonWithShadow from "../components/MaterialButtonWithShadow";
+import React, { Component } from 'react'
+import { View, Text, Alert, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Touchable, Button } from 'react-native'
 
+import AsyncStorage from "@react-native-community/async-storage";
+import Icon from 'react-native-vector-icons/FontAwesome'
+import axios from 'axios'
+import moment from 'moment'
+import 'moment/locale/pt-br'
 
-export default class ClientList extends Component {
+import { server, showError } from '../common' 
+import commonStyles from '../commonStyles'
+import todayImage from '../../assets/imgs/today.jpg'
+import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
+import weekImage from '../../assets/imgs/week.jpg'
+import monthImage from '../../assets/imgs/month.jpg'
+import Service from '../components/Service'
+import AddService from "./AddService"
+import { ScrollView } from 'react-native-gesture-handler';
+
+const initialState = {
+    showDoneTasks: true,
+    showAddTask: false,
+    visibleTasks: [],
+    tasks: []
+}
+
+export default class ServiceList extends Component {
+
+    state = {
+        ...initialState
+    }
+
+    componentDidMount = async () => {
+        const stateString = await AsyncStorage.getItem('tasksState')
+        const savedState = JSON.parse(stateString) || initialState    
+        this.loadTasks()
+    }
+
+    loadTasks = async () => {
+        try {            
+            const res = await axios.get(`${server}/services`)            
+            this.setState({ tasks: res.data }, this.filterTasks)
+        } catch(e) {
+            showError(e)
+        }
+    }
+
+    filterTasks = () => {
+        let visibleTasks = null
+        if(this.state.showDoneTasks){
+            visibleTasks = [...this.state.tasks]
+        } else {
+            // const pending = function(task){
+            //     return task.doneAt === null
+            // }
+            visibleTasks = this.state.tasks.filter(this.isPending)
+        }
+
+        this.setState({visibleTasks})
+        AsyncStorage.setItem('tasksState', JSON.stringify({
+            showDoneTasks: this.state.showDoneTasks
+        }))
+    }
+
+    addTask = async newTask => {
+        if(!newTask.descricao || !newTask.descricao.trim()) {
+            Alert.alert('Dados inválidos', 'Nome não informado!')
+            return
+        }
+
+        try {
+            await axios.post(`${server}/services`, {
+                descricao: newTask.descricao,
+                valor: newTask.valor                
+            })
+
+            this.setState({ showAddTask: false}, this.loadTasks)
+        } catch(e) {
+            showError(e)
+        }
+    }
+
+    teste = newTask => {                         
+        this.props.navigation.navigate('EditService', {id: newTask.serviceIdPK, descricao: newTask.descricao, valor: newTask.valor})
+    }
+
+    updateTask = async newTask => {     
+     
+     if(!newTask.desc || !newTask.desc.trim()) {
+          Alert.alert('Dados inválidos', 'Descrição não informada!')
+          return
+      }
+
+      try {
+          await axios.put(`${server}/employees/${newTask.id}/${newTask.desc}/${newTask.cargo}/update`, {
+              descricao: 'teste123',
+            //   estimateAt: newTask.date
+          })
+          this.loadTasks()
+
+          this.setState({ showAddTask: false}, this.loadTasks)
+      } catch(e) {
+          showError(e)
+      }
+  }
+
+    deleteTask = async serviceIdPK => {
+        console.log(serviceIdPK)
+        try {
+            await axios.delete(`${server}/services/${serviceIdPK}`)
+            this.loadTasks()
+        } catch (e) {
+            showError(e)
+        }
+    }
+
+    getImage = () => {
+        switch(this.props.daysAhead){
+            case 0: return todayImage
+            case 1: return tomorrowImage
+            case 7: return weekImage
+            default: return monthImage
+        }
+    }
+
+    getColor = () => {
+        switch(this.props.daysAhead){
+            case 0: return commonStyles.colors.today
+            case 1: return commonStyles.colors.tomorrow
+            case 7: return commonStyles.colors.week
+            default: return commonStyles.colors.month
+        }
+    }
+
     render() {
+        const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <View style={styles.container}>
-                <View style={[styles.container_header]}>
-                <View style={styles.leftIconButtonRow}>
-                    <TouchableOpacity style={styles.leftIconButton} onPress={() => this.props.navigation.navigate('Home')}>
-                    <MaterialCommunityIconsIcon
-                        name="menu"
-                        style={styles.leftIcon}
-                    ><Text>Serviços</Text></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <View style={styles.textWrapper}>
-                    <Text numberOfLines={1} style={styles.title}>            
-                    </Text>
-                    </View>
-                </View>
-                <View style={styles.leftIconButtonRowFiller}></View>
-                <TouchableOpacity style={styles.rightIconButton} onPress={() => this.props.navigation.navigate('Auth')}>
-                    <MaterialCommunityIconsIcon
-                    name="dots-vertical"
-                    style={styles.rightIcon}
-                    ></MaterialCommunityIconsIcon>
-                </TouchableOpacity>
-                </View>
-                <ScrollView
-                horizontal={false}>
-                    <TouchableOpacity style={{ padding: 10 }} 
-                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('AddService')}>
-                            <Text>Novo Serviço</Text>
+                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
+                <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
+                                <Icon name='bars'
+                                    size={20} color={commonStyles.colors.primary} />
+                            </TouchableOpacity> 
+                            <TouchableOpacity style={{ paddingTop: 20 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('Home')  }>
+                            <Text>Agendamentos</Text>
+                        </TouchableOpacity>                      
+                        <TouchableOpacity style={{ paddingTop: 20 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ServiceList')  }>
+                            <Text>Serviços</Text>
+                        </TouchableOpacity> 
+                        <TouchableOpacity style={{ paddingTop: 20 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('EmployeeList')  }>
+                            <Text>Clientes</Text>
                         </TouchableOpacity>
-                <MaterialCardWithImageAndTitle1 navigation={this.props.navigation} title="Ozonioterapia" subtitle="200,00" link="ViewClient"
-                    style={styles.materialCardWithImageAndTitle1}
-                ></MaterialCardWithImageAndTitle1>                          
-                <MaterialCardWithImageAndTitle1 title="Alta Frequência" subtitle="150,00"
-                    style={styles.materialCardWithImageAndTitle1}
-                ></MaterialCardWithImageAndTitle1>
-               <MaterialCardWithImageAndTitle1 navigation={this.props.navigation} title="Avaliação" subtitle="50,00" link="ViewClient"
-                    style={styles.materialCardWithImageAndTitle1}
-                ></MaterialCardWithImageAndTitle1>                                                                       
-                </ScrollView>
-                <View style={[styles.container_footer]}>
-                <TouchableOpacity style={styles.buttonWrapper1} onPress={() => this.props.navigation.navigate('Home')}>
-                        <MaterialCommunityIconsIcon
-                        name="calendar-text"
-                        style={styles.icon1}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonWrapper2} onPress={() => this.props.navigation.navigate('ClientList')}>
-                        <MaterialCommunityIconsIcon
-                        name="alpha-c-box"
-                        style={styles.activeIcon}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonWrapper3} onPress={() => this.props.navigation.navigate('ServiceList')}>
-                        <MaterialCommunityIconsIcon
-                        name="alpha-s-box"
-                        style={styles.icon3}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonWrapper4} onPress={() => this.props.navigation.navigate('PermissionList')}>
-                        <MaterialCommunityIconsIcon
-                        name="alpha-p-box"
-                        style={styles.icon4}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={{ paddingTop: 20, paddingRight: 15 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ProductList')  }>
+                            <Text>Produtos</Text>
+                        </TouchableOpacity>                                                                    
+                </View> 
+                <AddService isVisible={this.state.showAddTask}
+                 onCancel={() => this.setState({showAddTask: false})}
+                onSave={this.addTask}/>
+                <ImageBackground source={this.getImage()}
+                    style={styles.background}>                        
+                    <View style={styles.titleBar}>
+                        <Text style={styles.title}>Serviços</Text>
+                        <Text style={styles.subtitle}>{today}</Text>
                     </View>
+                </ImageBackground>
+                <View style={styles.taskList}>                
+                        <FlatList data={this.state.visibleTasks}
+                            keyExtractor={item => `${item.serviceIdPK}`}
+                            renderItem={({item}) => <Service {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
+                </View>
+                <TouchableOpacity style={[styles.addButton, {backgroundColor: '#B13B44'}]} activeOpacity={0.7}
+                onPress={() => this.setState({showAddTask: true})}>
+                <Icon name="plus" size={20} color={commonStyles.colors.secondary} />
+            </TouchableOpacity>
             </View>
-        );
+        )
     }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  materialButtonWithShadow: {
-    height: 36,
-    width: '90%',
-    marginLeft: '5%'
-  },
-  materialHeader1: {
-    height: 56,
-    width: '100%',
-  },
-  scrollArea: {
-    width: '100%',
-    height: 654,
-    backgroundColor: "#E6E6E6"
-  },
-  scrollArea_contentContainerStyle: {
-    height: 654,
-    width: '100%'
-  },
-  materialCardWithImageAndTitle1: {
-    height: 166,
-    width: '100%',
-    marginTop: 20
-  },
-  container_footer: {
-      backgroundColor: "#3f51b5",
-      flexDirection: "row",
-      alignItems: "center",
-      shadowColor: "#111",
-      shadowOffset: {
-        width: 0,
-        height: -2
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 1.2,
-      elevation: 3,
-      height: 50
+    container: {
+        flexGrow: 1
     },
-    buttonWrapper1: {
-      flex: 1,
-      minWidth: 80,
-      maxWidth: 168,
-      alignItems: "center"
+    background: {
+        flexGrow: 3
     },
-    icon1: {
-      backgroundColor: "transparent",
-      color: "#FFFFFF",
-      fontSize: 24,
-      opacity: 0.8
-    },
-    buttonWrapper2: {
-      flex: 1,
-      minWidth: 80,
-      maxWidth: 168,
-      alignItems: "center"
-    },
-    activeIcon: {
-      backgroundColor: "transparent",
-      color: "#FFFFFF",
-      fontSize: 24
-    },
-    buttonWrapper3: {
-      flex: 1,
-      minWidth: 80,
-      maxWidth: 168,
-      alignItems: "center"
-    },
-    icon3: {
-      backgroundColor: "transparent",
-      color: "#FFFFFF",
-      fontSize: 24,
-      opacity: 0.8
-    },
-    buttonWrapper4: {
-      flex: 1,
-      minWidth: 80,
-      maxWidth: 168,
-      alignItems: "center"
-    },
-    icon4: {
-      backgroundColor: "transparent",
-      color: "#FFFFFF",
-      fontSize: 24,
-      opacity: 0.8
-    },
-    container_header: {
-        backgroundColor: "#3F51B5",
-        width: '100%',
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        shadowColor: "#111",
-        shadowOffset: {
-          width: 0,
-          height: 2
-        },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.2,
-        elevation: 3
-      },
-      leftIconButton: {
-        padding: 11
-      },
-      leftIcon: {
-        backgroundColor: "transparent",
-        color: "#FFFFFF",
-        fontSize: 24
-      },
-      textWrapper: {
-        alignSelf: "flex-end",
-        marginLeft: 21,
-        marginBottom: 16
-      },
-      title: {
-        fontSize: 18,
-        color: "#FFFFFF",
-        backgroundColor: "transparent",
-        lineHeight: 18
-      },
-      leftIconButtonRow: {
-        flexDirection: "row",
-        marginLeft: 5,
-        marginTop: 5,
-        marginBottom: 3
-      },
-      leftIconButtonRowFiller: {
+    taskList: {
         flex: 1,
-        flexDirection: "row"
-      },
-      rightIconButton: {
-        padding: 11,
-        alignItems: "center",
-        marginRight: 5,
-        marginTop: 5
-      },
-      rightIcon: {
-        backgroundColor: "transparent",
-        color: "#FFFFFF",
-        fontSize: 24
-      }
-  });
-
+        flexGrow: 7,
+        marginLeft: 10,
+        marginRight: 10
+    },
+    titleBar: {
+        flex: 1,
+        justifyContent: 'flex-end'
+    },
+    title :{
+        fontFamily: commonStyles.fontFamily,
+        color: commonStyles.colors.secondary,
+        fontSize: 40,
+        marginLeft: 20,
+        marginBottom: 20
+    },
+    subtitle: {
+        fontFamily: commonStyles.fontFamily,
+        color: commonStyles.colors.secondary,
+        fontSize: 20,
+        marginLeft: 20,
+        marginBottom: 30
+    },
+    iconBar: {
+        flexDirection: 'row',
+        marginHorizontal: 20,
+        justifyContent: 'space-between',
+        marginTop: Platform.OS === 'ios' ? 40 : 10
+    },
+    addButton: {
+        position: 'absolute',
+        right: 30,
+        bottom: 30,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+})

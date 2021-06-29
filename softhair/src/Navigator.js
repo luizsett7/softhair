@@ -17,6 +17,12 @@ import EditTask from './screens/EditTask'
 import AddTask from './screens/AddTask'
 import EditEmployee from './screens/EditEmployee'
 import EmployeeList from './screens/EmployeeList'
+import ProductList from './screens/ProductList'
+import AddProduct from './screens/AddProduct'
+import EditProduct from './screens/EditProduct'
+import EditUser from './screens/EditUser'
+import UserList from './screens/UserList'
+import EditService from './screens/EditService'
 
 import AuthOrApp from './screens/AuthOrApp'
 import Menu from './screens/Menu'
@@ -135,6 +141,30 @@ const mainRoutes = {
     EditEmployee: {
         name: 'EditEmployee',
         screen: EditEmployee
+    },
+    ProductList: {
+        name: 'ProductList',
+        screen: ProductList
+    },
+    AddProduct: {
+        name: 'AddProduct',
+        screen: AddProduct
+    },
+    EditProduct: {
+        name: 'EditProduct',
+        screen: EditProduct
+    },
+    EditUser: {
+        name: 'EditUser',
+        screen: EditUser
+    },
+    UserList: {
+        name: 'UserList',
+        screen: UserList
+    },
+    EditService: {
+        name: 'EditService',
+        screen: EditService
     },
 }
 

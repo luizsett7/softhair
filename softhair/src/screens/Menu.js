@@ -29,11 +29,16 @@ export default props => {
                     <Text style={styles.name}>{props.navigation.getParam('name')}</Text>
                     <Text style={styles.email}>{props.navigation.getParam('email')}</Text>
                 </View>
+                <TouchableOpacity navigation={props.navigation} onPress={() => props.navigation.navigate('UserList')}>
+                    <View style={styles.logoutIcon}>
+                        <Text style={styles.users}>Colaboradores</Text>
+                    </View>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={logout}>
                     <View style={styles.logoutIcon}>
                         <Icon name='sign-out' size={30} color='#800' />
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity>                
             </View>
             <DrawerItems {...props} />
         </ScrollView>
@@ -71,6 +76,12 @@ const styles = StyleSheet.create({
     email: {
         fontFamily: commonStyles.fontFamily,
         fontSize: 15,
+        marginBottom: 5,
+        color: commonStyles.colors.subText
+    },
+    users: {
+        fontFamily: commonStyles.fontFamily,
+        fontSize: 25,
         marginBottom: 5,
         color: commonStyles.colors.subText
     },

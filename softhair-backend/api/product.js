@@ -1,35 +1,35 @@
 const moment = require('moment')
 
 module.exports = app => {
-    const getEmployees = (req, res) => {
-            app.db('clients')                    
-                .orderBy('nome')           
+    const getProducts = (req, res) => {
+            app.db('products')                    
+                .orderBy('descricao')           
                 .then(employees => res.json(employees))
                 .catch(err => res.status(400).json(err))               
     }
 
-    const getEmployee = (req, res) => {
-        app.db('clients') 
-            .where({ employeeIdPK: req.params.id })                
-            .orderBy('nome')           
+    const getProduct = (req, res) => {
+        app.db('products') 
+            .where({ productIdPK: req.params.id })                
+            .orderBy('descricao')           
             .then(employees => res.json(employees))
             .catch(err => res.status(400).json(err))               
     }
 
     const save = (req, res) => {
-        if (!req.body.nome.trim()) {
+        if (!req.body.descricao.trim()) {
             return res.status(400).send('Descrição é um campo obrigatório')
         }
         
-        app.db('clients')
+        app.db('products')
             .insert(req.body)
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
 
     const remove = (req, res) => {
-        app.db('clients')
-            .where({ clientIdPK: req.params.id })
+        app.db('products')
+            .where({ productIdPK: req.params.id })
             .del()
             .then(rowsDeleted => {
                 if (rowsDeleted > 0) {
@@ -43,26 +43,27 @@ module.exports = app => {
     }
 
     const seleciona = (req, res) => {        
-        console.log(req.params.id)
-        app.db('clients')
-            .where({ clientIdPK: req.params.id })
+        console.log("-----------"+req.params.id)
+        app.db('products')
+            .where({ productIdPK: req.params.id })
             .first()
             .then(task => {
                 if (!task) {
                     const msg = `Task com id ${req.params.id} não encontrada.`
                     return res.status(400).send(msg)
                 }
-                const nome = req.params.nome                
-                const cargo = req.params.cargo
-                update(req, res, nome, cargo)
+                const descricao = req.params.descricao                
+                const valor = req.params.valor
+                const urlImage = req.params.url                
+                update(req, res, descricao, valor, urlImage)
             })
             .catch(err => res.status(400).json(err))
     }
 
-    const update = (req, res, nome, cargo) => {        
-        app.db('clients')
-            .where({ clientIdPK: req.params.id })
-            .update({ nome, cargo })
+    const update = (req, res, descricao, valor, urlImage) => {        
+        app.db('products')
+            .where({ productIdPK: req.params.id })
+            .update({ descricao, valor, urlImage })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
@@ -91,5 +92,5 @@ module.exports = app => {
             .catch(err => res.status(400).json(err))
     }
 
-    return { getEmployees, getEmployee, save, remove, seleciona, toggleTask }
+    return { getProducts, getProduct, save, remove, seleciona, toggleTask }
 }

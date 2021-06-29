@@ -7,14 +7,14 @@ import axios from 'axios'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 
-import { server, showError } from '../common' 
+import { server, showError } from '../common'
 import commonStyles from '../commonStyles'
 import todayImage from '../../assets/imgs/today.jpg'
 import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
 import weekImage from '../../assets/imgs/week.jpg'
 import monthImage from '../../assets/imgs/month.jpg'
-import Employee from '../components/Employee'
-import AddEmployee from "./AddEmployee"
+import Product from '../components/Product'
+import AddProduct from "./AddProduct"
 import { ScrollView } from 'react-native-gesture-handler';
 
 const initialState = {
@@ -24,7 +24,7 @@ const initialState = {
     tasks: []
 }
 
-export default class EmployeeList extends Component {
+export default class ProductList extends Component {
 
     state = {
         ...initialState
@@ -41,10 +41,10 @@ export default class EmployeeList extends Component {
     }
 
     loadTasks = async () => {
-        try {            
-            const res = await axios.get(`${server}/employees`)            
+        try {
+            const res = await axios.get(`${server}/products`)
             this.setState({ tasks: res.data }, this.filterTasks)
-        } catch(e) {
+        } catch (e) {
             showError(e)
         }
     }
@@ -59,7 +59,7 @@ export default class EmployeeList extends Component {
 
     filterTasks = () => {
         let visibleTasks = null
-        if(this.state.showDoneTasks){
+        if (this.state.showDoneTasks) {
             visibleTasks = [...this.state.tasks]
         } else {
             // const pending = function(task){
@@ -68,7 +68,7 @@ export default class EmployeeList extends Component {
             visibleTasks = this.state.tasks.filter(this.isPending)
         }
 
-        this.setState({visibleTasks})
+        this.setState({ visibleTasks })
         AsyncStorage.setItem('tasksState', JSON.stringify({
             showDoneTasks: this.state.showDoneTasks
         }))
@@ -84,51 +84,52 @@ export default class EmployeeList extends Component {
     // }
 
     addTask = async newTask => {
-        if(!newTask.nome || !newTask.nome.trim()) {
+        if (!newTask.nome || !newTask.nome.trim()) {
             Alert.alert('Dados inválidos', 'Nome não informado!')
             return
         }
 
         try {
-            await axios.post(`${server}/employees`, {
-                nome: newTask.nome,
-                cargo: newTask.cargo                
+            await axios.post(`${server}/products`, {
+                descricao: newTask.descricao,
+                valor: newTask.valor,
+                url: newTask.urlImage
             })
 
-            this.setState({ showAddTask: false}, this.loadTasks)
-        } catch(e) {
+            this.setState({ showAddTask: false }, this.loadTasks)
+        } catch (e) {
             showError(e)
         }
     }
 
-    teste = newTask => {                         
-        this.props.navigation.navigate('EditEmployee', {id: newTask.clientIdPK, nome: newTask.nome, cargo: newTask.cargo})
+    teste = newTask => {
+        this.props.navigation.navigate('EditProduct', { id: newTask.productIdPK, descricao: newTask.descricao, valor: newTask.valor, urlImage: newTask.urlImage })
     }
 
-    updateTask = async newTask => {     
-     
-     if(!newTask.desc || !newTask.desc.trim()) {
-          Alert.alert('Dados inválidos', 'Descrição não informada!')
-          return
-      }
+    updateTask = async newTask => {
 
-      try {
-          await axios.put(`${server}/employees/${newTask.id}/${newTask.desc}/${newTask.cargo}/update`, {
-              descricao: 'teste123',
-            //   estimateAt: newTask.date
-          })
-          this.loadTasks()
+        if (!newTask.desc || !newTask.desc.trim()) {
+            Alert.alert('Dados inválidos', 'Descrição não informada!')
+            return
+        }
 
-          this.setState({ showAddTask: false}, this.loadTasks)
-      } catch(e) {
-          showError(e)
-      }
-  }
-
-    deleteTask = async clientIdPK => {
-        console.log(clientIdPK)
         try {
-            await axios.delete(`${server}/employees/${clientIdPK}`)
+            await axios.put(`${server}/employees/${newTask.id}/${newTask.desc}/${newTask.cargo}/update`, {
+                descricao: 'teste123',
+                //   estimateAt: newTask.date
+            })
+            this.loadTasks()
+
+            this.setState({ showAddTask: false }, this.loadTasks)
+        } catch (e) {
+            showError(e)
+        }
+    }
+
+    deleteTask = async productIdPK => {
+        console.log(productIdPK)
+        try {
+            await axios.delete(`${server}/products/${productIdPK}`)
             this.loadTasks()
         } catch (e) {
             showError(e)
@@ -136,7 +137,7 @@ export default class EmployeeList extends Component {
     }
 
     getImage = () => {
-        switch(this.props.daysAhead){
+        switch (this.props.daysAhead) {
             case 0: return todayImage
             case 1: return tomorrowImage
             case 7: return weekImage
@@ -145,7 +146,7 @@ export default class EmployeeList extends Component {
     }
 
     getColor = () => {
-        switch(this.props.daysAhead){
+        switch (this.props.daysAhead) {
             case 0: return commonStyles.colors.today
             case 1: return commonStyles.colors.tomorrow
             case 7: return commonStyles.colors.week
@@ -157,47 +158,44 @@ export default class EmployeeList extends Component {
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <View style={styles.container}>
-                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
-                                <Icon name='bars'
-                                    size={20} color={commonStyles.colors.primary} />
-                            </TouchableOpacity> 
-                            <TouchableOpacity style={{ paddingTop: 20 }} 
-                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('Home')  }>
-                            <Text>Agendamentos</Text>
-                        </TouchableOpacity>                      
-                        <TouchableOpacity style={{ paddingTop: 20 }} 
-                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ServiceList')  }>
-                            <Text>Serviços</Text>
-                        </TouchableOpacity> 
-                        <TouchableOpacity style={{ paddingTop: 20 }} 
-                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('EmployeeList')  }>
-                            <Text>Clientes</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ paddingTop: 20, paddingRight: 15 }} 
-                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ProductList')  }>
-                            <Text>Produtos</Text>
-                        </TouchableOpacity>                                                                    
-                </View> 
-                <AddEmployee isVisible={this.state.showAddTask}
-                 onCancel={() => this.setState({showAddTask: false})}
-                onSave={this.addTask}/>
+                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
+                        <Icon name='bars'
+                            size={20} color={commonStyles.colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('Home')}>
+                        <Text>Agendamentos</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ServiceList')}>
+                        <Text>Serviços</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('EmployeeList')}>
+                        <Text>Clientes</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20, paddingRight: 15 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ProductList')}>
+                        <Text>Produtos</Text>
+                    </TouchableOpacity>
+                </View>
                 <ImageBackground source={this.getImage()}
-                    style={styles.background}>                        
+                    style={styles.background}>
                     <View style={styles.titleBar}>
-                        <Text style={styles.title}>Clientes</Text>
+                        <Text style={styles.title}>Produtos</Text>
                         <Text style={styles.subtitle}>{today}</Text>
                     </View>
                 </ImageBackground>
-                <View style={styles.taskList}>                
-                        <FlatList data={this.state.visibleTasks}
-                            keyExtractor={item => `${item.clientIdPK}`}
-                            renderItem={({item}) => <Employee {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
+                <View style={styles.taskList}>
+                    <FlatList data={this.state.visibleTasks}
+                        keyExtractor={item => `${item.productIdPK}`}
+                        renderItem={({ item }) => <Product {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
                 </View>
-                <TouchableOpacity style={[styles.addButton, {backgroundColor: '#B13B44'}]} activeOpacity={0.7}
-                onPress={() => this.setState({showAddTask: true})}>
-                <Icon name="plus" size={20} color={commonStyles.colors.secondary} />
-            </TouchableOpacity>
+                <TouchableOpacity style={[styles.addButton, { backgroundColor: '#B13B44' }]} activeOpacity={0.7}
+                    navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('AddProduct')}>
+                    <Icon name="plus" size={20} color={commonStyles.colors.secondary} />
+                </TouchableOpacity>
             </View>
         )
     }
@@ -220,7 +218,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-end'
     },
-    title :{
+    title: {
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.secondary,
         fontSize: 40,

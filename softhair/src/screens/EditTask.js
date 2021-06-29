@@ -27,11 +27,13 @@ const initialState = {
     tasks: [],
     employees: [],
     users: [],
+    services: [],
     //date: new Date(), 
     showDatePicker: false,
     showDateTimePicker: false,   
     employee: 1,
-    user: 1
+    user: 1,
+    service: 1
 }
 
 export default class EditTask extends Component { 
@@ -52,16 +54,41 @@ export default class EditTask extends Component {
         }, this.filterTasks)
 
         this.loadTasks()
+        this.loadUsers() 
         this.loadUserId() 
         this.loadEmployee()
         this.loadEmployeeId()
-        this.loadUsers()              
+        this.loadServices()
+        this.loadServiceId()             
     }
 
     loadEmployee = async() => {
         try {
         const res = await axios.get(`${server}/employees`)        
         this.setState({ employees: res.data })                 
+    } catch (e) {
+        showError(e)
+    }
+    }
+
+    loadServices = async() => {
+        try {
+        const res = await axios.get(`${server}/services`)        
+        this.setState({ services: res.data })                 
+    } catch (e) {
+        showError(e)
+    }
+    }
+
+    loadServiceId = async() => {
+        try {
+        const { navigation } = this.props
+        let identificador = navigation.getParam('id', 'sem id')         
+        console.log(identificador)  
+        const res = await axios.get(`${server}/tasks/${identificador}`)                  
+        res.data.map((v)=>{                                                               
+            this.setState({ service: v.serviceIdFK })                                     
+           })                                                    
     } catch (e) {
         showError(e)
     }
@@ -177,7 +204,7 @@ export default class EditTask extends Component {
         }        
 
         try {
-            await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/${newTask.employee}/${newTask.user}/update`, {
+            await axios.put(`${server}/tasks/${newTask.id}/${newTask.nova_descricao}/${newTask.estimateAt}/${newTask.doneAt}/${newTask.employee}/${newTask.user}/${newTask.service}/update`, {
 
             })
             this.props.navigation.navigate('Home')
@@ -287,11 +314,15 @@ export default class EditTask extends Component {
         doneAt = moment(doneAt).format()
         let employee = this.state.employee
         let user = this.state.user
+        let service = this.state.service
         if(employee == null){
             employee = 1
         }  
         if(user == null){
             user = 1
+        }  
+        if(service == null){
+            service = 1
         }       
         function carrega(param) {
             task.employee = param            
@@ -299,7 +330,10 @@ export default class EditTask extends Component {
         function carrega_user(param) {
             task.user = param            
         }
-        const task = { id, nova_descricao, estimateAt, doneAt, employee, user }        
+        function carrega_service(param) {
+            task.service = param            
+        }
+        const task = { id, nova_descricao, estimateAt, doneAt, employee, user, service }        
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <ScrollView style={styles.container}>
@@ -315,16 +349,23 @@ export default class EditTask extends Component {
                         <Text style={styles.subtitle}>{today}</Text>
                     </View>
                 </ImageBackground>
-                <View style={styles.edit}>
-                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Descrição</Text>
-                    <TextInput style={styles.input}
-                        placeholder="Informe a descrição..."
-                        onChangeText={desc => this.setState({ desc })}
-                        value={this.state.desc} />
+                <View style={styles.edit}>                                        
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Data</Text>
                     <View style={styles.date}>{this.getDatePicker()}</View>
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Hora</Text>
                     <View style={styles.time}>{this.getDateTimePicker()}</View>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Serviço</Text>  
+                    <View style={{marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5}}>                        
+                    <Picker style={{width: '100%', height: 20}}
+                        selectedValue={this.state.service}
+                        onValueChange={(service, itemIndex) =>                              
+                            carrega_service(service)                                                                                                                                                                                                                                                                                                           
+                           }>                 
+                            {this.state.services.map( (v)=>{                                                                               
+                                return <Picker.Item key={v.serviceIdPK} label={v.descricao} value={v.serviceIdPK} />                                
+                            })}
+                        </Picker>                                                              
+                    </View> 
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cliente</Text>  
                     <View style={{marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5}}>                        
                     <Picker style={{width: '100%', height: 20}}

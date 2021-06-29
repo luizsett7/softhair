@@ -3,25 +3,13 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } fr
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import Icon from 'react-native-vector-icons/FontAwesome'
 
-import moment from 'moment'
-import 'moment/locale/pt-br'
-
 import commonStyles from '../commonStyles'
 
-export default props => {
-
-    //const date = props.doneAt ? props.doneAt : props.estimateAt
-    const date = props.estimateAt
-    const time = props.doneAt ? props.doneAt : props.estimateAt
-    const formattedDate = moment(date).locale('pt-br')
-        .format('ddd, D [de] MMMM')
-    const formattedTime = moment(time).locale('pt-br')
-        .format('h:mm a')
-
+export default props => {  
     const getRightContent = () => {
         return (
           <TouchableOpacity style={styles.right}
-          onPress={() => props.onDelete && props.onDelete(props.taskIdPK)}>
+          onPress={() => props.onDelete && props.onDelete(props.serviceIdPK)}>
               <Icon name="trash" size={30} color='#FFF' />
           </TouchableOpacity>
         )
@@ -39,18 +27,15 @@ export default props => {
     return (
       <Swipeable renderRightActions={getRightContent}
             renderLeftActions={getLeftContent}
-            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.taskIdPK)}>
+            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.serviceIdPK)}>
           <View style={styles.container}>              
               <View>
                   <TouchableOpacity>
                   <TouchableWithoutFeedback                                   
                 onPress={() => props.onUpdateTask(props)}>
-                        <Text style={styles.desc}>{props.taskIdPK} - {props.descricao}</Text>
+                        <Text style={styles.desc}>{props.descricao}</Text>
                     </TouchableWithoutFeedback>
-                    <Text style={styles.date}>Valor: {props.valor}</Text>                    
-                    <Text style={styles.date}>Cliente: {props.nome}</Text>
-                    <Text style={styles.date}>Colaborador: {props.name}</Text>
-                    <Text style={styles.date}>{formattedDate} - {formattedTime}</Text>                    
+                    <Text style={styles.date}>R$ {props.valor}</Text>
                   </TouchableOpacity>
               </View>
           </View>

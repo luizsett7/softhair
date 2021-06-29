@@ -28,12 +28,13 @@ const initialState = {
     showDateTimePicker: false
 }
 
-export default class EditEmployee extends Component {
+export default class EditProduct extends Component {
 
     state = {
         ...initialState,
-        nome: this.props.navigation.getParam('nome'),
-        cargo: this.props.navigation.getParam('cargo'),
+        descricao: this.props.navigation.getParam('descricao'),
+        valor: this.props.navigation.getParam('valor'),        
+        urlImage: this.props.navigation.getParam('urlImage')        
     }
 
 
@@ -43,7 +44,8 @@ export default class EditEmployee extends Component {
         this.setState({
             showDoneTasks: savedState.showDoneTasks
         }, this.filterTasks)
-        this.loadTasks()
+
+        this.loadTasks()        
     }
 
     loadTasks = async () => {
@@ -106,23 +108,16 @@ export default class EditEmployee extends Component {
         }
     }
 
-    teste = () => {
-        //this.props.navigation.navigate('EditTask', {id: 1, desc: 'aaa'})
-        const message = this.props.navigation.getParam('desc');
-        Alert.alert(`${message}`)
-    }
-
-    updateTask = async newTask => {
-        if (!newTask.novo_nome || !newTask.novo_nome.trim()) {
-            Alert.alert('Dados inválidos', 'Nome não informado!')
+    updateTask = async newTask => {        
+        if (!newTask.descricao || !newTask.descricao.trim()) {
+            Alert.alert('Dados inválidos', 'Descrição não informada!')
             return
-        }
-
+        }        
         try {
-            await axios.put(`${server}/employees/${newTask.id}/${newTask.novo_nome}/${newTask.novo_cargo}/update`, {
+            await axios.put(`${server}/products/${newTask.id}/${newTask.descricao}/${newTask.valor}/update`, {
 
             })
-            this.props.navigation.navigate('EmployeeList')
+            this.props.navigation.navigate('ProductList')
         } catch (e) {
             showError(e)
         }
@@ -216,10 +211,11 @@ export default class EditEmployee extends Component {
 
     render() {
         const { navigation } = this.props
-        const id = navigation.getParam('id', 'sem id')
-        const novo_nome = this.state.nome
-        let novo_cargo = this.state.cargo
-        const task = { id, novo_nome, novo_cargo }
+        const id = navigation.getParam('id', 'sem id')                       
+        const descricao = this.state.descricao
+        let valor = this.state.valor
+        let urlImage = this.state.urlImage
+        const task = { id, descricao, valor, urlImage }        
         return (
             <View style={styles.container}>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -243,24 +239,29 @@ export default class EditEmployee extends Component {
                         navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ProductList')}>
                         <Text>Produtos</Text>
                     </TouchableOpacity>
-                </View>
+                </View>                               
                 <ImageBackground source={this.getImage()}
                     style={styles.background}>
                     <View style={styles.titleBar}>
-                        <Text style={styles.title}>{this.props.title}</Text>
+                        <Text style={styles.title}>{this.props.title}</Text>                        
                     </View>
                 </ImageBackground>
                 <View style={styles.edit}>
-                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Nome</Text>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Descrição</Text>
                     <TextInput style={styles.input}
-                        placeholder="Informe o nome..."
-                        onChangeText={nome => this.setState({ nome })}
-                        value={this.state.nome} />
-                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cargo</Text>
+                        placeholder="Informe a descrição..."
+                        onChangeText={descricao => this.setState({ descricao })}
+                        value={this.state.descricao} />    
+                        <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Valor</Text>
                     <TextInput style={styles.input}
-                        placeholder="Informe o nome..."
-                        onChangeText={cargo => this.setState({ cargo })}
-                        value={this.state.cargo} />
+                        placeholder="Informe o valor..."
+                        onChangeText={valor => this.setState({ valor })}
+                        value={`${this.state.valor}`} />
+                         <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Endereço da imagem</Text>
+                    <TextInput style={styles.input}
+                        placeholder="Informe o endereço..."
+                        onChangeText={urlImage => this.setState({ urlImage })}
+                        value={this.state.urlImage} />                                    
                     <TouchableOpacity
                         navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
                         <Text style={styles.save}>Salvar</Text>

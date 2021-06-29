@@ -8,6 +8,8 @@ exports.up = function (knex, Promise) {
             .inTable('users').notNull()
         table.integer('clientIdFK').references('clientIdPK')
             .inTable('clients').notNull()
+        table.integer('serviceIdFK').references('serviceIdPK')
+            .inTable('services').notNull()    
     })
 };
 

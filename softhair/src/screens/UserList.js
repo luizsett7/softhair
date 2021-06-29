@@ -13,7 +13,7 @@ import todayImage from '../../assets/imgs/today.jpg'
 import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
 import weekImage from '../../assets/imgs/week.jpg'
 import monthImage from '../../assets/imgs/month.jpg'
-import Task from '../components/Task'
+import User from '../components/User'
 import AddTask from "./AddTask"
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -24,7 +24,7 @@ const initialState = {
     tasks: []
 }
 
-export default class TaskList extends Component {
+export default class UserList extends Component {
 
     state = {
         ...initialState
@@ -41,11 +41,8 @@ export default class TaskList extends Component {
     }
 
     loadTasks = async () => {
-        try {
-            const maxDate = moment()
-                .add({days: this.props.daysAhead})
-                .format('YYYY-MM-DD 23:59:59')
-            const res = await axios.get(`${server}/tasks?date=${maxDate}`)            
+        try {            
+            const res = await axios.get(`${server}/users`)            
             this.setState({ tasks: res.data }, this.filterTasks)
         } catch(e) {
             showError(e)
@@ -117,7 +114,7 @@ export default class TaskList extends Component {
     // }
 
     teste = newTask => {                   
-        this.props.navigation.navigate('EditTask', {id: newTask.taskIdPK, desc: newTask.desc, estimateAt: newTask.estimateAt, doneAt: newTask.doneAt, employeeId: newTask.userIdPK, userId: newTask.userIdFK})
+        this.props.navigation.navigate('EditUser', {id: newTask.userIdPK, nome: newTask.name, email: newTask.email, role: newTask.role})
     }
 
     updateTask = async newTask => {     
@@ -140,9 +137,9 @@ export default class TaskList extends Component {
       }
   }
 
-    deleteTask = async taskIdPK => {
+    deleteTask = async userIdPK => {
         try {
-            await axios.delete(`${server}/tasks/${taskIdPK}`)
+            await axios.put(`${server}/users/${userIdPK}/remove`)
             this.loadTasks()
         } catch (e) {
             showError(e)
@@ -172,7 +169,7 @@ export default class TaskList extends Component {
         return (
             <View style={styles.container}>
                 <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.openDrawer()}>
+                <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
                                 <Icon name='bars'
                                     size={20} color={commonStyles.colors.primary} />
                             </TouchableOpacity> 
@@ -196,19 +193,15 @@ export default class TaskList extends Component {
                 <ImageBackground source={this.getImage()}
                     style={styles.background}>                        
                     <View style={styles.titleBar}>
-                        <Text style={styles.title}>{this.props.title}</Text>
+                        <Text style={styles.title}>Colaboradores</Text>
                         <Text style={styles.subtitle}>{today}</Text>
                     </View>
                 </ImageBackground>
                 <View style={styles.taskList}>                
                         <FlatList data={this.state.visibleTasks}
-                            keyExtractor={item => `${item.taskIdPK}`}
-                            renderItem={({item}) => <Task {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
-                </View>
-                <TouchableOpacity style={[styles.addButton, {backgroundColor: '#B13B44'}]} activeOpacity={0.7}
-                navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('AddTask')}>
-                <Icon name="plus" size={20} color={commonStyles.colors.secondary} />
-            </TouchableOpacity>
+                            keyExtractor={item => `${item.userIdPK}`}
+                            renderItem={({item}) => <User {...item} onUpdateTask={this.teste} onToggleTask={this.toggleTask} onDelete={this.deleteTask} />} />
+                </View>                        
             </View>
         )
     }
@@ -234,7 +227,7 @@ const styles = StyleSheet.create({
     title :{
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.secondary,
-        fontSize: 50,
+        fontSize: 40,
         marginLeft: 20,
         marginBottom: 20
     },

@@ -1,137 +1,62 @@
-import React, { Component } from 'react'
-import { View, Text, Alert, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Touchable, Button, TextInput } from 'react-native'
+import React, { Component } from "react"
+import {
+    Modal,
+    View,
+    StyleSheet,
+    TouchableWithoutFeedback,
+    Text,
+    TouchableOpacity,
+    TextInput,
+    Platform,
+    ImageBackground,
+    ScrollView
+} from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker'
-import RNPickerSelect from 'react-native-picker-select';
-
+import commonStyles from "../commonStyles";
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios'
 import AsyncStorage from "@react-native-community/async-storage";
 import Icon from 'react-native-vector-icons/FontAwesome'
-import axios from 'axios'
-import moment from 'moment'
-import 'moment/locale/pt-br'
-
 import { server, showError } from '../common'
-import commonStyles from '../commonStyles'
 import todayImage from '../../assets/imgs/today.jpg'
 import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
 import weekImage from '../../assets/imgs/week.jpg'
 import monthImage from '../../assets/imgs/month.jpg'
-import Task from '../components/Task'
-import AddTask from "./AddTask"
+import moment from 'moment'
+import 'moment/locale/pt-br'
 
 const initialState = {
-    showDoneTasks: true,
-    showAddTask: false,
-    visibleTasks: [],
-    tasks: [],
-    //date: new Date(), 
-    showDatePicker: false,
-    showDateTimePicker: false
+    descricao: '',
+    valor: '',
+    urlImage: ''
 }
 
-export default class EditEmployee extends Component {
+export default class AddProduct extends Component {
 
     state = {
-        ...initialState,
-        nome: this.props.navigation.getParam('nome'),
-        cargo: this.props.navigation.getParam('cargo'),
+        ...initialState
     }
 
+    save = () => {
+        const newTask = {
+            descricao: this.state.descricao,
+            valor: this.state.valor,
+            urlImage: this.state.urlImage
+        }
 
-    componentDidMount = async () => {
-        const stateString = await AsyncStorage.getItem('tasksState')
-        const savedState = JSON.parse(stateString) || initialState
-        this.setState({
-            showDoneTasks: savedState.showDoneTasks
-        }, this.filterTasks)
-        this.loadTasks()
+        this.props.onSave && this.props.onSave(newTask)
+        this.setState({ ...initialState })
     }
 
-    loadTasks = async () => {
+    addTask = async () => {
         try {
-            const maxDate = moment()
-                .add({ days: this.props.daysAhead })
-                .format('YYYY-MM-DD 23:59:59')
-            const res = await axios.get(`${server}/tasks?date=${maxDate}`)
-            this.setState({ tasks: res.data }, this.filterTasks)
-        } catch (e) {
-            showError(e)
-        }
-    }
-
-    toggleFilter = () => {
-        this.setState({ showDoneTasks: !this.state.showDoneTasks }, this.filterTasks)
-    }
-
-    filterTasks = () => {
-        let visibleTasks = null
-        if (this.state.showDoneTasks) {
-            visibleTasks = [...this.state.tasks]
-        } else {
-            // const pending = function(task){
-            //     return task.doneAt === null
-            // }
-            visibleTasks = this.state.tasks.filter(this.isPending)
-        }
-
-        this.setState({ visibleTasks })
-        AsyncStorage.setItem('tasksState', JSON.stringify({
-            showDoneTasks: this.state.showDoneTasks
-        }))
-    }
-
-    toggleTask = async taskId => {
-        try {
-            await axios.put(`${server}/tasks/${taskId}/toggle`)
-            this.loadTasks()
-        } catch (e) {
-            showError(e)
-        }
-    }
-
-    addTask = async newTask => {
-        if (!newTask.desc || !newTask.desc.trim()) {
-            Alert.alert('Dados inválidos', 'Descrição não informada!')
-            return
-        }
-
-        try {
-            await axios.post(`${server}/tasks`, {
-                desc: newTask.desc,
-                estimateAt: newTask.date
+            await axios.post(`${server}/products`, {
+                descricao: this.state.descricao,
+                valor: this.state.valor,
+                urlImage: this.state.urlImage,
             })
-
-            this.setState({ showAddTask: false }, this.loadTasks)
-        } catch (e) {
-            showError(e)
-        }
-    }
-
-    teste = () => {
-        //this.props.navigation.navigate('EditTask', {id: 1, desc: 'aaa'})
-        const message = this.props.navigation.getParam('desc');
-        Alert.alert(`${message}`)
-    }
-
-    updateTask = async newTask => {
-        if (!newTask.novo_nome || !newTask.novo_nome.trim()) {
-            Alert.alert('Dados inválidos', 'Nome não informado!')
-            return
-        }
-
-        try {
-            await axios.put(`${server}/employees/${newTask.id}/${newTask.novo_nome}/${newTask.novo_cargo}/update`, {
-
-            })
-            this.props.navigation.navigate('EmployeeList')
-        } catch (e) {
-            showError(e)
-        }
-    }
-
-    deleteTask = async taskId => {
-        try {
-            await axios.delete(`${server}/tasks/${taskId}`)
-            this.loadTasks()
+            this.props.navigation.navigate('ProductList')
+            //this.setState({ showAddTask: false}, this.loadTasks)
         } catch (e) {
             showError(e)
         }
@@ -155,18 +80,9 @@ export default class EditEmployee extends Component {
         }
     }
 
-
     getDatePicker = () => {
-        let data = new Date(
-            Date.parse(
-                moment(this.state.date, 'YYYY-MM-DD').format(
-                    'ddd MMM DD YYYY'
-                )
-            )
-        )
         let datePicker = <DateTimePicker
-            value={data}
-            display="default"
+            value={this.state.date}
             onChange={(_, date) => this.setState({ date, showDatePicker: false })}
             mode='date' />
         const dateString = moment(this.state.date).format('ddd, D [de] MMMM [de] YYYY')
@@ -185,14 +101,10 @@ export default class EditEmployee extends Component {
         }
         return datePicker
     }
+
     getDateTimePicker = () => {
-        let time = new Date(
-            Date.parse(
-                moment(this.state.time).format()
-            )
-        )
         let dateTimePicker = <DateTimePicker
-            value={time}
+            value={this.state.time}
             is24Hour={true}
             display="default"
             onChange={(_, time) => this.setState({ time, showDateTimePicker: false })}
@@ -214,14 +126,27 @@ export default class EditEmployee extends Component {
         return dateTimePicker
     }
 
+    setPrestador = prestador => {
+        this.setState({ employee: prestador })
+    }
+
+    setUser = user => {
+        this.setState({ user: user })
+    }
+
+    setService = service => {
+        this.setState({ service: service })
+    }
+
     render() {
-        const { navigation } = this.props
-        const id = navigation.getParam('id', 'sem id')
-        const novo_nome = this.state.nome
-        let novo_cargo = this.state.cargo
-        const task = { id, novo_nome, novo_cargo }
+        let id_employee = 1
+        function carrega(param) {
+            id_employee = param
+            console.log(id_employee)
+        }
+        const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
                         <Icon name='bars'
@@ -248,25 +173,30 @@ export default class EditEmployee extends Component {
                     style={styles.background}>
                     <View style={styles.titleBar}>
                         <Text style={styles.title}>{this.props.title}</Text>
+                        <Text style={styles.subtitle}>{today}</Text>
                     </View>
                 </ImageBackground>
-                <View style={styles.edit}>
-                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Nome</Text>
+                <View style={styles.container}>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Descrição</Text>
                     <TextInput style={styles.input}
-                        placeholder="Informe o nome..."
-                        onChangeText={nome => this.setState({ nome })}
-                        value={this.state.nome} />
-                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cargo</Text>
+                        placeholder="Informe a descrição..."
+                        onChangeText={descricao => this.setState({ descricao })}
+                        value={this.state.descricao} />
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Valor</Text>
                     <TextInput style={styles.input}
-                        placeholder="Informe o nome..."
-                        onChangeText={cargo => this.setState({ cargo })}
-                        value={this.state.cargo} />
-                    <TouchableOpacity
-                        navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
+                        placeholder="Informe o valor..."
+                        onChangeText={valor => this.setState({ valor })}
+                        value={this.state.valor} />
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Endereço da Imagem</Text>
+                    <TextInput style={styles.input}
+                        placeholder="Informe o endereço da imagem..."
+                        onChangeText={urlImage => this.setState({ urlImage })}
+                        value={this.state.urlImage} />
+                    <TouchableOpacity onPress={this.addTask}>
                         <Text style={styles.save}>Salvar</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </ScrollView>
         )
     }
 }
@@ -345,14 +275,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginTop: Platform.OS === 'ios' ? 40 : 10
     },
-    addButton: {
-        position: 'absolute',
-        right: 30,
-        bottom: 30,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        alignItems: 'center',
-        justifyContent: 'center'
+    buttons: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end'
+    },
+    button: {
+        margin: 20,
+        marginRight: 30,
+        color: commonStyles.colors.today
     }
 })

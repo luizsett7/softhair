@@ -16,6 +16,7 @@ import commonStyles from "../commonStyles";
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios'
 import AsyncStorage from "@react-native-community/async-storage";
+import Icon from 'react-native-vector-icons/FontAwesome'
 import { server, showError } from '../common'
 import todayImage from '../../assets/imgs/today.jpg'
 import tomorrowImage from '../../assets/imgs/tomorrow.jpg'
@@ -24,7 +25,7 @@ import monthImage from '../../assets/imgs/month.jpg'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 
-const initialState = { desc: '', date: new Date(), time: new Date(), showDatePicker: false, showDateTimePicker: false, employees: [], users: [], employee: 1, user: 1 }
+const initialState = { desc: '', date: new Date(), time: new Date(), showDatePicker: false, showDateTimePicker: false, services: [], employees: [], users: [], employee: 1, user: 1, service: 1 }
 
 export default class AddTask extends Component {
 
@@ -32,19 +33,29 @@ export default class AddTask extends Component {
     ...initialState
   }
 
-  componentDidMount = async () => {    
+  componentDidMount = async () => {
     this.loadEmployee()
     this.loadUsers()
+    this.loadServices()
   }
 
-  loadUsers = async() => {
+  loadUsers = async () => {
     try {
-    const res = await axios.get(`${server}/users`)        
-    this.setState({ users: res.data })                 
-} catch (e) {
-    showError(e)
-}
-}
+      const res = await axios.get(`${server}/users`)
+      this.setState({ users: res.data })
+    } catch (e) {
+      showError(e)
+    }
+  }
+
+  loadServices = async () => {
+    try {
+      const res = await axios.get(`${server}/services`)
+      this.setState({ services: res.data })
+    } catch (e) {
+      showError(e)
+    }
+  }
 
   loadEmployee = async () => {
     try {
@@ -67,24 +78,20 @@ export default class AddTask extends Component {
   }
 
   addTask = async () => {
-    if(!this.state.desc || !this.state.desc.trim()) {
-        Alert.alert('Dados inválidos', 'Descrição não informada!')
-        return
-    }
-
     try {
-        await axios.post(`${server}/tasks`, {
-            desc: this.state.desc,
-            estimateAt: this.state.date,
-            doneAt: this.state.time,
-            clientIdFK: this.state.employee
-        })
-        this.props.navigation.navigate('Home')
-        //this.setState({ showAddTask: false}, this.loadTasks)
-    } catch(e) {
-        showError(e)
+      await axios.post(`${server}/tasks`, {
+        desc: 'desc',
+        estimateAt: this.state.date,
+        doneAt: this.state.time,
+        clientIdFK: this.state.employee,
+        serviceIdFK: this.state.service
+      })
+      this.props.navigation.navigate('Home')
+      //this.setState({ showAddTask: false}, this.loadTasks)
+    } catch (e) {
+      showError(e)
     }
-}
+  }
 
   getImage = () => {
     switch (this.props.daysAhead) {
@@ -151,11 +158,15 @@ export default class AddTask extends Component {
   }
 
   setPrestador = prestador => {
-    this.setState({ employee: prestador })    
+    this.setState({ employee: prestador })
   }
 
   setUser = user => {
-    this.setState({ user: user })    
+    this.setState({ user: user })
+  }
+
+  setService = service => {
+    this.setState({ service: service })
   }
 
   render() {
@@ -168,10 +179,27 @@ export default class AddTask extends Component {
     return (
       <ScrollView style={styles.container}>
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-          <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.navigate('Home')}>
-            <Text>Voltar</Text>
-          </TouchableOpacity>
-        </View>
+                    <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
+                        <Icon name='bars'
+                            size={20} color={commonStyles.colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('Home')}>
+                        <Text>Agendamentos</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ServiceList')}>
+                        <Text>Serviços</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('EmployeeList')}>
+                        <Text>Clientes</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ paddingTop: 20, paddingRight: 15 }}
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ProductList')}>
+                        <Text>Produtos</Text>
+                    </TouchableOpacity>
+                </View>
         <ImageBackground source={this.getImage()}
           style={styles.background}>
           <View style={styles.titleBar}>
@@ -185,43 +213,47 @@ export default class AddTask extends Component {
               onPress={this.props.onCancel}>
               <View style={styles.overlay} />
             </TouchableWithoutFeedback>
-            <View style={styles.container}>              
-              <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Descrição</Text>
-              <TextInput style={styles.input}
-                placeholder="Informe a descrição..."
-                onChangeText={desc => this.setState({ desc })}
-                value={this.state.desc} />
-                <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cliente</Text>
-                <View style={{marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5}}> 
-              <Picker style={{ width: '100%', height: 20, marginTop: 10 }}
-                selectedValue={this.state.employee}
-                onValueChange={(prestador, itemIndex) => 
-                  {this.setPrestador(prestador)}                                                     
-                }>
-                {this.state.employees.map((v) => {
-                  return <Picker.Item key={v.clientIdPK} label={v.nome} value={v.clientIdPK} />
-                })}
-              </Picker>
+            <View style={styles.container}>
+              <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Serviço</Text>
+              <View style={{ marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5 }}>
+                <Picker style={{ width: '100%', height: 20, marginTop: 10 }}
+                  selectedValue={this.state.service}
+                  onValueChange={(service, itemIndex) => { this.setService(service) }
+                  }>
+                  {this.state.services.map((v) => {
+                    return <Picker.Item key={v.serviceIdPK} label={v.descricao} value={v.serviceIdPK} />
+                  })}
+                </Picker>
               </View>
-              <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Colaborador</Text>    
-                    <View style={{marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5}}>                        
-                    <Picker style={{width: '100%', height: 20}}
-                        selectedValue={this.state.user}
-                        onValueChange={(user, itemIndex) =>                              
-                          {this.setUser(user)}                                                                                                                                                                                                                                                                                                         
-                           }>                 
-                            {this.state.users.map( (v)=>{                                                                               
-                                return <Picker.Item key={v.userIdPK} label={v.name} value={v.userIdPK} />                                
-                            })}
-                        </Picker>                                                              
-                    </View>  
+              <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cliente</Text>
+              <View style={{ marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5 }}>
+                <Picker style={{ width: '100%', height: 20, marginTop: 10 }}
+                  selectedValue={this.state.employee}
+                  onValueChange={(prestador, itemIndex) => { this.setPrestador(prestador) }
+                  }>
+                  {this.state.employees.map((v) => {
+                    return <Picker.Item key={v.clientIdPK} label={v.nome} value={v.clientIdPK} />
+                  })}
+                </Picker>
+              </View>
+              <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Colaborador</Text>
+              <View style={{ marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5 }}>
+                <Picker style={{ width: '100%', height: 20 }}
+                  selectedValue={this.state.user}
+                  onValueChange={(user, itemIndex) => { this.setUser(user) }
+                  }>
+                  {this.state.users.map((v) => {
+                    return <Picker.Item key={v.userIdPK} label={v.name} value={v.userIdPK} />
+                  })}
+                </Picker>
+              </View>
               <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Data</Text>
               <View style={styles.date}>{this.getDatePicker()}</View>
               <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Hora</Text>
-              <View style={styles.time}>{this.getDateTimePicker()}</View>                            
-                 <TouchableOpacity onPress={this.addTask}>
-                  <Text style={styles.save}>Salvar</Text>
-                </TouchableOpacity>              
+              <View style={styles.time}>{this.getDateTimePicker()}</View>
+              <TouchableOpacity onPress={this.addTask}>
+                <Text style={styles.save}>Salvar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -232,77 +264,77 @@ export default class AddTask extends Component {
 
 const styles = StyleSheet.create({
   container: {
-      flexGrow: 1
+    flexGrow: 1
   },
   background: {
-      flexGrow: 3
+    flexGrow: 3
   },
   edit: {
-      flex: 1,
-      flexGrow: 7,
+    flex: 1,
+    flexGrow: 7,
   },
   input: {
-      width: '95%',
-      fontSize: 15,
-      marginTop: 15,
-      marginLeft: 10,
-      fontFamily: commonStyles.fontFamily,
-      backgroundColor: '#fbc4ab',
-      borderRadius: 5
+    width: '95%',
+    fontSize: 15,
+    marginTop: 15,
+    marginLeft: 10,
+    fontFamily: commonStyles.fontFamily,
+    backgroundColor: '#fbc4ab',
+    borderRadius: 5
   },
   save: {
-      width: '95%',
-      height: 40,
-      fontSize: 20,
-      marginTop: 25,
-      marginLeft: 10,
-      textAlign: 'center',
-      textAlignVertical: 'center',
-      fontFamily: commonStyles.fontFamily,
-      backgroundColor: '#f08080',
-      borderRadius: 5
+    width: '95%',
+    height: 40,
+    fontSize: 20,
+    marginTop: 25,
+    marginLeft: 10,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    fontFamily: commonStyles.fontFamily,
+    backgroundColor: '#f08080',
+    borderRadius: 5
   },
   date: {
-      width: '95%',
-      fontSize: 15,
-      marginLeft: 10,
-      marginTop: 10,
-      fontFamily: commonStyles.fontFamily,
-      backgroundColor: '#fbc4ab',
-      borderRadius: 5
+    width: '95%',
+    fontSize: 15,
+    marginLeft: 10,
+    marginTop: 10,
+    fontFamily: commonStyles.fontFamily,
+    backgroundColor: '#fbc4ab',
+    borderRadius: 5
   },
   time: {
-      width: '95%',
-      fontSize: 15,
-      marginLeft: 10,
-      fontFamily: commonStyles.fontFamily,
-      marginTop: 10,
-      backgroundColor: '#fbc4ab',
-      borderRadius: 5
+    width: '95%',
+    fontSize: 15,
+    marginLeft: 10,
+    fontFamily: commonStyles.fontFamily,
+    marginTop: 10,
+    backgroundColor: '#fbc4ab',
+    borderRadius: 5
   },
   titleBar: {
-      flex: 1,
-      justifyContent: 'flex-end'
+    flex: 1,
+    justifyContent: 'flex-end'
   },
   title: {
-      fontFamily: commonStyles.fontFamily,
-      color: commonStyles.colors.secondary,
-      fontSize: 50,
-      marginLeft: 20,
-      marginBottom: 20
+    fontFamily: commonStyles.fontFamily,
+    color: commonStyles.colors.secondary,
+    fontSize: 50,
+    marginLeft: 20,
+    marginBottom: 20
   },
   subtitle: {
-      fontFamily: commonStyles.fontFamily,
-      color: commonStyles.colors.secondary,
-      fontSize: 20,
-      marginLeft: 20,
-      marginBottom: 30
+    fontFamily: commonStyles.fontFamily,
+    color: commonStyles.colors.secondary,
+    fontSize: 20,
+    marginLeft: 20,
+    marginBottom: 30
   },
   iconBar: {
-      flexDirection: 'row',
-      marginHorizontal: 20,
-      justifyContent: 'space-between',
-      marginTop: Platform.OS === 'ios' ? 40 : 10
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    justifyContent: 'space-between',
+    marginTop: Platform.OS === 'ios' ? 40 : 10
   },
   buttons: {
     flexDirection: 'row',

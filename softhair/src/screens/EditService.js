@@ -28,12 +28,12 @@ const initialState = {
     showDateTimePicker: false
 }
 
-export default class EditEmployee extends Component {
+export default class EditService extends Component {
 
     state = {
         ...initialState,
-        nome: this.props.navigation.getParam('nome'),
-        cargo: this.props.navigation.getParam('cargo'),
+        descricao: this.props.navigation.getParam('descricao'),
+        valor: this.props.navigation.getParam('valor'),
     }
 
 
@@ -43,7 +43,7 @@ export default class EditEmployee extends Component {
         this.setState({
             showDoneTasks: savedState.showDoneTasks
         }, this.filterTasks)
-        this.loadTasks()
+        this.loadTasks()        
     }
 
     loadTasks = async () => {
@@ -113,16 +113,14 @@ export default class EditEmployee extends Component {
     }
 
     updateTask = async newTask => {
-        if (!newTask.novo_nome || !newTask.novo_nome.trim()) {
-            Alert.alert('Dados inválidos', 'Nome não informado!')
+        if (!newTask.descricao || !newTask.descricao.trim()) {
+            Alert.alert('Dados inválidos', 'Descrição não informada!')
             return
         }
 
         try {
-            await axios.put(`${server}/employees/${newTask.id}/${newTask.novo_nome}/${newTask.novo_cargo}/update`, {
-
-            })
-            this.props.navigation.navigate('EmployeeList')
+            await axios.put(`${server}/services/${newTask.id}/${newTask.descricao}/${newTask.valor}/update`)
+            this.props.navigation.navigate('ServiceList')
         } catch (e) {
             showError(e)
         }
@@ -217,9 +215,9 @@ export default class EditEmployee extends Component {
     render() {
         const { navigation } = this.props
         const id = navigation.getParam('id', 'sem id')
-        const novo_nome = this.state.nome
-        let novo_cargo = this.state.cargo
-        const task = { id, novo_nome, novo_cargo }
+        const descricao = this.state.descricao
+        const valor = this.state.valor
+        const task = { id, descricao, valor }
         return (
             <View style={styles.container}>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -251,16 +249,16 @@ export default class EditEmployee extends Component {
                     </View>
                 </ImageBackground>
                 <View style={styles.edit}>
-                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Nome</Text>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Descrição</Text>
                     <TextInput style={styles.input}
-                        placeholder="Informe o nome..."
-                        onChangeText={nome => this.setState({ nome })}
-                        value={this.state.nome} />
-                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cargo</Text>
+                        placeholder="Informe o descrição..."
+                        onChangeText={descricao => this.setState({ descricao })}
+                        value={this.state.descricao} />
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Valor</Text>
                     <TextInput style={styles.input}
-                        placeholder="Informe o nome..."
-                        onChangeText={cargo => this.setState({ cargo })}
-                        value={this.state.cargo} />
+                        placeholder="Informe o valor..."
+                        onChangeText={valor => this.setState({ valor })}
+                        value={`${this.state.valor}`} />
                     <TouchableOpacity
                         navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
                         <Text style={styles.save}>Salvar</Text>

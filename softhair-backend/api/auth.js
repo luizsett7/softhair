@@ -9,6 +9,7 @@ module.exports = app => {
         }
 
         const user = await app.db('users')
+            .where('ativo', '=', '1')
             .whereRaw("LOWER(email) = LOWER(?)", req.body.email)
             .first()
 

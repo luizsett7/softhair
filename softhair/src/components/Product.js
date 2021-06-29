@@ -1,53 +1,63 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
+import { View, Text, Image, StyleSheet, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import Icon from 'react-native-vector-icons/FontAwesome'
 
 import commonStyles from '../commonStyles'
 
-export default props => {  
+export default props => {
     const getRightContent = () => {
         return (
-          <TouchableOpacity style={styles.right}
-          onPress={() => props.onDelete && props.onDelete(props.clientIdPK)}>
-              <Icon name="trash" size={30} color='#FFF' />
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.right}
+                onPress={() => props.onDelete && props.onDelete(props.productIdPK)}>
+                <Icon name="trash" size={30} color='#FFF' />
+            </TouchableOpacity>
         )
     }
 
     const getLeftContent = () => {
         return (
-          <View style={styles.left}>
-              <Icon name="trash" size={20} color='#FFF' style={styles.excludeIcon} />
-              <Text style={styles.excludeText}>Excluir</Text>
-          </View>
+            <View style={styles.left}>
+                <Icon name="trash" size={20} color='#FFF' style={styles.excludeIcon} />
+                <Text style={styles.excludeText}>Excluir</Text>
+            </View>
         )
     }
 
     return (
-      <Swipeable renderRightActions={getRightContent}
+        <Swipeable renderRightActions={getRightContent}
             renderLeftActions={getLeftContent}
-            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.clientIdPK)}>
-          <View style={styles.container}>              
-              <View>
-                  <TouchableOpacity>
-                  <TouchableWithoutFeedback                                   
-                onPress={() => props.onUpdateTask(props)}>
-                        <Text style={styles.desc}>{props.nome}</Text>
+            onSwipeableLeftOpen={() => props.onDelete && props.onDelete(props.productIdPK)}>
+            <View style={styles.container}>
+                <View style={{flex: 7}}>
+                    <TouchableWithoutFeedback
+                        onPress={() => props.onUpdateTask(props)}>
+                        <Text style={styles.desc}>{props.descricao}</Text>
                     </TouchableWithoutFeedback>
-                    <Text style={styles.date}>{props.cargo}</Text>
-                  </TouchableOpacity>
-              </View>
-          </View>
-      </Swipeable>
+                    <Text style={styles.date}>R$ {props.valor}</Text>
+                </View>
+                <View style={{flex: 3}}>
+                    <Image
+                        style={styles.tinyLogo}
+                        source={{
+                            uri: props.urlImage,
+                        }}
+                    />
+                </View>
+            </View>
+        </Swipeable>
     )
 }
 
 const styles = StyleSheet.create({
+    tinyLogo: {
+        width: 100,
+        height: 100,
+    },
     container: {
         flexDirection: 'row',
         borderColor: '#AAA',
-        borderBottomWidth: 1,
+        borderBottomWidth: 1,        
         alignItems: 'center',
         paddingVertical: 10,
         backgroundColor: '#FFF'
@@ -102,6 +112,6 @@ const styles = StyleSheet.create({
         margin: 10
     },
     excludeIcon: {
-         marginLeft: 10
+        marginLeft: 10
     }
 })

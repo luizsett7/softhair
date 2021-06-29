@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { View, Text, Alert, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Touchable, Button, TextInput } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import RNPickerSelect from 'react-native-picker-select';
+import { Picker } from '@react-native-picker/picker';
 
 import AsyncStorage from "@react-native-community/async-storage";
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -23,17 +23,20 @@ const initialState = {
     showAddTask: false,
     visibleTasks: [],
     tasks: [],
+    roles: [],
     //date: new Date(), 
     showDatePicker: false,
-    showDateTimePicker: false
+    showDateTimePicker: false,
+    role: 1,
+    ativoDB: 1
 }
 
-export default class EditEmployee extends Component {
+export default class EditUser extends Component {
 
     state = {
         ...initialState,
         nome: this.props.navigation.getParam('nome'),
-        cargo: this.props.navigation.getParam('cargo'),
+        email: this.props.navigation.getParam('email'),
     }
 
 
@@ -44,15 +47,42 @@ export default class EditEmployee extends Component {
             showDoneTasks: savedState.showDoneTasks
         }, this.filterTasks)
         this.loadTasks()
+        this.loadRoles()
+        this.loadRoleId()        
+    }
+
+    loadRoles = async () => {
+        try {
+            const res = await axios.get(`${server}/roles`)
+            this.setState({ roles: res.data })            
+        } catch (e) {
+            showError(e)
+        }
+    }
+
+    loadRoleId = async () => {
+        try {
+            const { navigation } = this.props
+            let identificador = navigation.getParam('id', 'sem id')
+            console.log(identificador)
+            const res = await axios.get(`${server}/users/${identificador}`)
+            res.data.map((v) => {
+                this.setState({ role: v.roleIdFK })
+            })
+        } catch (e) {
+            showError(e)
+        }
     }
 
     loadTasks = async () => {
-        try {
-            const maxDate = moment()
-                .add({ days: this.props.daysAhead })
-                .format('YYYY-MM-DD 23:59:59')
-            const res = await axios.get(`${server}/tasks?date=${maxDate}`)
-            this.setState({ tasks: res.data }, this.filterTasks)
+        try {           
+            const { navigation } = this.props
+            let identificador = navigation.getParam('id', 'sem id')            
+            const res = await axios.get(`${server}/users/${identificador}`)
+            this.setState({ tasks: res.data })
+            res.data.map((v) => {
+                this.setState({ ativoDB: v.ativo })            
+            })                      
         } catch (e) {
             showError(e)
         }
@@ -119,10 +149,8 @@ export default class EditEmployee extends Component {
         }
 
         try {
-            await axios.put(`${server}/employees/${newTask.id}/${newTask.novo_nome}/${newTask.novo_cargo}/update`, {
-
-            })
-            this.props.navigation.navigate('EmployeeList')
+            await axios.put(`${server}/users/${newTask.id}/${newTask.novo_nome}/${newTask.novo_email}/${newTask.novo_role}/${newTask.ative}/update`)
+            this.props.navigation.navigate('UserList')
         } catch (e) {
             showError(e)
         }
@@ -214,12 +242,22 @@ export default class EditEmployee extends Component {
         return dateTimePicker
     }
 
+    carrega_role = role => {
+        this.setState({ role: role })
+    }
+
+    carrega_ativo = ativo => {
+        this.setState({ ativoDB: ativo })
+    }
+
     render() {
         const { navigation } = this.props
         const id = navigation.getParam('id', 'sem id')
         const novo_nome = this.state.nome
-        let novo_cargo = this.state.cargo
-        const task = { id, novo_nome, novo_cargo }
+        const novo_email = this.state.email
+        const novo_role = this.state.role
+        const ative = this.state.ativoDB
+        const task = { id, novo_nome, novo_email, novo_role, ative }
         return (
             <View style={styles.container}>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -258,9 +296,30 @@ export default class EditEmployee extends Component {
                         value={this.state.nome} />
                     <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Cargo</Text>
                     <TextInput style={styles.input}
-                        placeholder="Informe o nome..."
-                        onChangeText={cargo => this.setState({ cargo })}
-                        value={this.state.cargo} />
+                        placeholder="Informe o e-mail..."
+                        onChangeText={email => this.setState({ email })}
+                        value={this.state.email} />
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Função</Text>
+                    <View style={{ marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5 }}>
+                        <Picker style={{ width: '100%', height: 20 }}
+                            selectedValue={this.state.role}
+                            onValueChange={(role, itemIndex) => { this.carrega_role(role) }
+                            }>
+                            {this.state.roles.map((v) => {
+                                return <Picker.Item key={v.roleIdPK} label={v.descricao} value={v.roleIdPK} />
+                            })}
+                        </Picker>
+                    </View>
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Ativo</Text>
+                    <View style={{ marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5 }}>
+                        <Picker style={{ width: '100%', height: 20 }}
+                            selectedValue={this.state.ativoDB}
+                            onValueChange={(ativo, itemIndex) => { this.carrega_ativo(ativo) }
+                            }>
+                            <Picker.Item key={1} label={`Sim`} value={1} />
+                            <Picker.Item key={0} label={`Não`} value={0} />
+                        </Picker>
+                    </View>
                     <TouchableOpacity
                         navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
                         <Text style={styles.save}>Salvar</Text>

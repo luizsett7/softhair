@@ -7,6 +7,7 @@ exports.up = function (knex, Promise) {
         table.string('password').notNull()
         table.integer('roleIdFK').references('roleIdPK')
             .inTable('roles').notNull()
+        table.integer('ativo').defaultTo(1)
     })
 };
 

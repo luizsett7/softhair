@@ -1,379 +1,159 @@
-import React, { Component } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from "react-native";
-import MaterialFixedLabelTextbox from "../components/MaterialFixedLabelTextbox";
-import MaterialButtonWithShadow from "../components/MaterialButtonWithShadow";
-import MaterialButtonViolet from "../components/MaterialButtonViolet";
-import MaterialCommunityIconsIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import MaterialIconButtonsFooter from "../components/MaterialIconButtonsFooter";
+import React, {Component } from "react"
+import {
+  Modal,
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Platform,
+} from "react-native";
+import moment from "moment";
+import DateTimePicker from '@react-native-community/datetimepicker'
+import commonStyles from "../commonStyles";
+
+const initialState = { nome: '', cargo: ''}
 
 export default class AddService extends Component {
-  render() {
-        return (
-        <View style={styles.container}>
-          <View style={[styles.container_header]}>
-                <View style={styles.leftIconButtonRow}>
-                    <TouchableOpacity style={styles.leftIconButton} onPress={() => this.props.navigation.navigate('Home')}>
-                    <MaterialCommunityIconsIcon
-                        name="menu"
-                        style={styles.leftIcon}
-                    ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <View style={styles.textWrapper}>
-                    <Text numberOfLines={1} style={styles.title}>            
-                    </Text>
-                    </View>
-                </View>
-                <View style={styles.leftIconButtonRowFiller}></View>
-                <TouchableOpacity style={styles.rightIconButton}>
-                    <MaterialCommunityIconsIcon
-                    name="dots-vertical"
-                    style={styles.rightIcon}
-                    ></MaterialCommunityIconsIcon>
-                </TouchableOpacity>
-                </View>
-          <ScrollView
-              horizontal={false}>
-                <MaterialFixedLabelTextbox
-                    label="Digite a descrição"
-                    style={styles.materialFixedLabelTextbox}
-                ></MaterialFixedLabelTextbox>
-                <MaterialFixedLabelTextbox
-                    label="Digite o valor"
-                    style={styles.materialFixedLabelTextbox1}
-                ></MaterialFixedLabelTextbox>
-                <Text style={styles.colaborador}>Descrição</Text>
-                <Text style={styles.cliente}>Valor</Text>
-                <MaterialButtonViolet
-                    caption="SALVAR"
-                    style={styles.materialButtonViolet}
-                ></MaterialButtonViolet>
-            </ScrollView>
-            <View style={[styles.container_footer]}>
-                <TouchableOpacity style={styles.buttonWrapper1} onPress={() => this.props.navigation.navigate('Home')}>
-                        <MaterialCommunityIconsIcon
-                        name="calendar-text"
-                        style={styles.icon1}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonWrapper2} onPress={() => this.props.navigation.navigate('ClientList')}>
-                        <MaterialCommunityIconsIcon
-                        name="alpha-c-box"
-                        style={styles.activeIcon}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonWrapper3} onPress={() => this.props.navigation.navigate('ServiceList')}>
-                        <MaterialCommunityIconsIcon
-                        name="alpha-s-box"
-                        style={styles.icon3}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonWrapper4} onPress={() => this.props.navigation.navigate('PermissionList')}>
-                        <MaterialCommunityIconsIcon
-                        name="alpha-p-box"
-                        style={styles.icon4}
-                        ></MaterialCommunityIconsIcon>
-                    </TouchableOpacity>
-                    </View>
-        </View>
-      );
+
+  state = {
+    ...initialState
+  }
+
+  save = () => {
+    const newTask = {
+      descricao: this.state.nome,
+      valor: this.state.cargo
     }
+
+    this.props.onSave && this.props.onSave(newTask)
+    this.setState({...initialState})
+  }
+
+  getDatePicker = () => {
+   let datePicker = <DateTimePicker
+    value={this.state.date}
+    onChange={(_,date) => this.setState({date, showDatePicker: false})}
+    mode='date'/>
+    const dateString = moment(this.state.date).format('ddd, D [de] MMMM [de] YYYY')
+    if(Platform.OS === 'android'){
+      datePicker = (
+        <View>
+          <TouchableOpacity onPress={() => this.setState({showDatePicker: true})}>
+              <Text style={styles.date}>
+                {dateString}
+              </Text>
+          </TouchableOpacity>
+          {/*renderização condicional se a primeira condição for true, é renderizado pela segunda*/}
+          {this.state.showDatePicker && datePicker}
+        </View>
+      )
+    }
+    return datePicker
+  }
+
+  getDateTimePicker = () => {      
+    let dateTimePicker = <DateTimePicker
+     value={this.state.time}  
+     is24Hour={true}
+     display="default"              
+     onChange={(_,time) => this.setState({time, showDateTimePicker: false})}
+     mode='time'/>
+     const dateString = moment(this.state.time).format('h:mm:ss a')
+     if(Platform.OS === 'android'){
+        dateTimePicker = (
+         <View>
+           <TouchableOpacity onPress={() => this.setState({showDateTimePicker: true})}>
+               <Text style={styles.date}>
+                 {dateString}
+               </Text>
+           </TouchableOpacity>
+           {/*renderização condicional se a primeira condição for true, é renderizado pela segunda*/}
+           {this.state.showDateTimePicker && dateTimePicker}
+         </View>
+       )
+     }
+     return dateTimePicker
+   }  
+
+  render() {
+    return (
+      <Modal transparent={true} visible={this.props.isVisible}
+        onRequestClose={this.props.onCancel} animationType='slide'>
+        <TouchableWithoutFeedback
+            onPress={this.props.onCancel}>
+            <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+        <View style={styles.container}>
+          <Text style={styles.header}>Novo Serviço</Text>
+          <View>
+          <TextInput style={styles.input}
+            placeholder="Informe a descrição..."
+                     onChangeText={nome => this.setState({nome})}
+            value={this.state.nome}/>
+            </View>
+            <View>
+            <TextInput style={styles.input}
+            placeholder="Informe o valor..."
+                     onChangeText={cargo => this.setState({cargo})}
+            value={this.state.cargo}/>
+            </View>
+          <View style={styles.buttons}>
+            <TouchableOpacity onPress={this.props.onCancel}>
+              <Text style={styles.button}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this.save}>
+              <Text style={styles.button}>Salvar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <TouchableWithoutFeedback
+          onPress={this.props.onCancel}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+      </Modal>
+    )
+  }
 }
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)'
+  },
   container: {
-    flex: 1
-  },
-  materialHeader1: {
-    height: 56,
-    width: '100%',
-  },
-  container_footer: {
-    backgroundColor: "#3f51b5",
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#111",
-    shadowOffset: {
-      width: 0,
-      height: -2
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.2,
-    elevation: 3,
-    height: 50
-  },
-  buttonWrapper1: {
     flex: 1,
-    minWidth: 80,
-    maxWidth: 168,
-    alignItems: "center"
+    flexGrow: 1,
+    backgroundColor: '#FFF'
   },
-  icon1: {
-    backgroundColor: "transparent",
-    color: "#FFFFFF",
-    fontSize: 24,
-    opacity: 0.8
+  header: {
+    fontFamily: commonStyles.fontFamily,
+    backgroundColor: commonStyles.colors.today,
+    color: commonStyles.colors.secondary,
+    textAlign: 'center',
+    padding: 15,
+    fontSize: 18
   },
-  buttonWrapper2: {
-    flex: 1,
-    minWidth: 80,
-    maxWidth: 168,
-    alignItems: "center"
+  input: {
+    fontFamily: commonStyles.fontFamily,
+    height: 40,
+    margin: 15,
+    backgroundColor: '#FFF',
+    borderWidth: 1,
+    borderColor: '#E3E3E3'
   },
-  activeIcon: {
-    backgroundColor: "transparent",
-    color: "#FFFFFF",
-    fontSize: 24
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
   },
-  buttonWrapper3: {
-    flex: 1,
-    minWidth: 80,
-    maxWidth: 168,
-    alignItems: "center"
+  button: {
+    marginRight: 20,
+    color: commonStyles.colors.today
   },
-  icon3: {
-    backgroundColor: "transparent",
-    color: "#FFFFFF",
-    fontSize: 24,
-    opacity: 0.8
-  },
-  buttonWrapper4: {
-    flex: 1,
-    minWidth: 80,
-    maxWidth: 168,
-    alignItems: "center"
-  },
-  icon4: {
-    backgroundColor: "transparent",
-    color: "#FFFFFF",
-    fontSize: 24,
-    opacity: 0.8
-  },
-  materialFixedLabelTextbox: {
-    height: 43,
-    width: 310,
-    marginTop: 38,
-    marginLeft: 33
-  },
-  materialFixedLabelTextbox1: {
-    height: 43,
-    width: 310,
-    marginTop: 38,
-    marginLeft: 33
-  },
-  colaborador: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: -143,
-    marginLeft: 41
-  },
-  cliente: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 68,
-    marginLeft: 41
-  },
-  servicos: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 5
-  },
-  materialButtonWithShadow: {
-    height: 26,
-    width: 159,
-    marginLeft: 120
-  },
-  servicosRow: {
-    height: 26,
-    flexDirection: "row",
-    marginTop: 69,
-    marginLeft: 41,
-    marginRight: 32
-  },
-  ozonioterapia: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 5
-  },
-  r20000: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginLeft: 31,
-    marginTop: 5
-  },
-  materialButtonWithShadow1: {
-    height: 26,
-    width: 103,
-    backgroundColor: "rgba(210,82,82,1)",
-    marginLeft: 26
-  },
-  ozonioterapiaRow: {
-    height: 26,
-    flexDirection: "row",
-    marginTop: 41,
-    marginLeft: 34,
-    marginRight: 32
-  },
-  altaFrequencia: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 5
-  },
-  r15000: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginLeft: 21,
-    marginTop: 5
-  },
-  materialButtonWithShadow2: {
-    height: 26,
-    width: 103,
-    backgroundColor: "rgba(210,82,82,1)",
-    marginLeft: 26
-  },
-  altaFrequenciaRow: {
-    height: 26,
-    flexDirection: "row",
-    marginTop: 36,
-    marginLeft: 34,
-    marginRight: 32
-  },
-  produtos: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 5
-  },
-  materialButtonWithShadow5: {
-    height: 26,
-    width: 159,
-    marginLeft: 123
-  },
-  produtosRow: {
-    height: 26,
-    flexDirection: "row",
-    marginTop: 29,
-    marginLeft: 34,
-    marginRight: 32
-  },
-  escovaWetBrush: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 5
-  },
-  r20001: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginLeft: 6,
-    marginTop: 5
-  },
-  materialButtonWithShadow3: {
-    height: 26,
-    width: 103,
-    backgroundColor: "rgba(210,82,82,1)",
-    marginLeft: 26
-  },
-  escovaWetBrushRow: {
-    height: 26,
-    flexDirection: "row",
-    marginTop: 104,
-    marginLeft: 34,
-    marginRight: 32
-  },
-  shampooKeune: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 5
-  },
-  r18000: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginLeft: 16,
-    marginTop: 5
-  },
-  materialButtonWithShadow4: {
-    height: 26,
-    width: 103,
-    backgroundColor: "rgba(210,82,82,1)",
-    marginLeft: 26
-  },
-  shampooKeuneRow: {
-    height: 26,
-    flexDirection: "row",
-    marginTop: -89,
-    marginLeft: 34,
-    marginRight: 32
-  },
-  descricaoDetalhada: {
-    fontFamily: "roboto-regular",
-    color: "#121212",
-    marginTop: 83,
-    marginLeft: 33
-  },
-  materialFixedLabelTextbox2: {
-    height: 43,
-    width: 310,
-    marginTop: 7,
-    marginLeft: 34
-  },
-  materialButtonViolet: {
-    height: 36,
-    width: 303,
-    marginTop: 59,
-    marginLeft: 40,
-    marginBottom: 10
-  },
-  container_header: {
-    backgroundColor: "#3F51B5",
-    width: '100%',
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#111",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.2,
-    elevation: 3
-  },
-  leftIconButton: {
-    padding: 11
-  },
-  leftIcon: {
-    backgroundColor: "transparent",
-    color: "#FFFFFF",
-    fontSize: 24
-  },
-  textWrapper: {
-    alignSelf: "flex-end",
-    marginLeft: 21,
-    marginBottom: 16
-  },
-  title: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    backgroundColor: "transparent",
-    lineHeight: 18
-  },
-  leftIconButtonRow: {
-    flexDirection: "row",
-    marginLeft: 5,
-    marginTop: 5,
-    marginBottom: 3
-  },
-  leftIconButtonRowFiller: {
-    flex: 1,
-    flexDirection: "row"
-  },
-  rightIconButton: {
-    padding: 11,
-    alignItems: "center",
-    marginRight: 5,
-    marginTop: 5
-  },
-  rightIcon: {
-    backgroundColor: "transparent",
-    color: "#FFFFFF",
-    fontSize: 24
+  date: {
+    fontFamily: commonStyles.fontFamily,
+    fontSize: 20,
+    marginLeft: 15
   }
-});
+})
