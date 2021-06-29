@@ -337,11 +337,28 @@ export default class EditTask extends Component {
         const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
         return (
             <ScrollView style={styles.container}>
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <TouchableOpacity style={{ padding: 15 }} onPress={() => this.props.navigation.navigate('Home')}>
-                        <Text>Voltar</Text>
-                    </TouchableOpacity>
-                </View>                
+               <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
+                <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
+                                <Icon name='bars'
+                                    size={20} color={commonStyles.colors.primary} />
+                            </TouchableOpacity> 
+                            <TouchableOpacity style={{ paddingTop: 20 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('Home')  }>
+                            <Text>Agendamentos</Text>
+                        </TouchableOpacity>                      
+                        <TouchableOpacity style={{ paddingTop: 20 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ServiceList')  }>
+                            <Text>Serviços</Text>
+                        </TouchableOpacity> 
+                        <TouchableOpacity style={{ paddingTop: 20 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('EmployeeList')  }>
+                            <Text>Clientes</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ paddingTop: 20, paddingRight: 15 }} 
+                        navigation={this.props.navigation} onPress={() => this.props.navigation.navigate('ProductList')  }>
+                            <Text>Produtos</Text>
+                        </TouchableOpacity>                                                                    
+                </View>                      
                 <ImageBackground source={this.getImage()}
                     style={styles.background}>
                     <View style={styles.titleBar}>

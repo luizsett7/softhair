@@ -36,22 +36,13 @@ module.exports = app => {
                 .catch(err => res.status(400).json(err))
     }
 
-    const save = (req, res) => {
-        // if (!req.body.desc.trim()) {
-        //     return res.status(400).send('Descrição é um campo obrigatório')
-        // }
-        console.log(req.body)
+    const save = (req, res) => {                
         req.body.userIdFK = req.user.id            
         let dataMenor = moment(req.body.doneAt).subtract(30, 'minutes')
         let dataInicial = moment(dataMenor).format()
         let dataMaior = moment(req.body.doneAt).add(30, 'minutes')
-        let dataFinal = moment(dataMaior).format()
-        console.log("dataMenor"+moment(dataInicial).format())
-        console.log("dataMaior"+moment(dataFinal).format())
-        console.log("doneAt"+req.body.doneAt)
-        console.log("estimateAt"+req.body.doneAt)                        
-                app.db('tasks')
-                //.where('userIdFK', '=', `${req.body.userIdFK}`)                
+        let dataFinal = moment(dataMaior).format()                       
+                app.db('tasks')                
                 .where('doneAt', '>=', `${dataInicial}`) 
                 .where('doneAt', '<=', `${dataFinal}`)           
                 .first() 
