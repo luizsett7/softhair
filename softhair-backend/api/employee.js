@@ -10,7 +10,15 @@ module.exports = app => {
 
     const getEmployee = (req, res) => {
         app.db('clients') 
-            .where({ employeeIdPK: req.params.id })                
+            .where({ clientIdPK: req.params.id })                
+            .orderBy('nome')           
+            .then(employees => res.json(employees))
+            .catch(err => res.status(400).json(err))               
+    }
+
+    const getAtiveEmployees = (req, res) => {
+        app.db('clients') 
+            .where({ ativo: 1 })                
             .orderBy('nome')           
             .then(employees => res.json(employees))
             .catch(err => res.status(400).json(err))               
@@ -29,16 +37,9 @@ module.exports = app => {
 
     const remove = (req, res) => {
         app.db('clients')
-            .where({ clientIdPK: req.params.id })
-            .del()
-            .then(rowsDeleted => {
-                if (rowsDeleted > 0) {
-                    res.status(204).send()
-                } else {
-                    const msg = `Não foi encontrada task com id ${req.params.id}.`
-                    res.status(400).send(msg)
-                }
-            })
+            .where({ clientIdPK: req.params.id })            
+            .update({ ativo: 0 })
+            .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
 
@@ -54,15 +55,16 @@ module.exports = app => {
                 }
                 const nome = req.params.nome                
                 const cargo = req.params.cargo
-                update(req, res, nome, cargo)
+                const ativo = req.params.ativo
+                update(req, res, nome, cargo, ativo)
             })
             .catch(err => res.status(400).json(err))
     }
 
-    const update = (req, res, nome, cargo) => {        
+    const update = (req, res, nome, cargo, ativo) => {        
         app.db('clients')
             .where({ clientIdPK: req.params.id })
-            .update({ nome, cargo })
+            .update({ nome, cargo, ativo })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
@@ -91,5 +93,5 @@ module.exports = app => {
             .catch(err => res.status(400).json(err))
     }
 
-    return { getEmployees, getEmployee, save, remove, seleciona, toggleTask }
+    return { getEmployees, getEmployee, getAtiveEmployees, save, remove, seleciona, toggleTask }
 }

@@ -50,7 +50,7 @@ export default class AddTask extends Component {
 
   loadServices = async () => {
     try {
-      const res = await axios.get(`${server}/services`)
+      const res = await axios.get(`${server}/ativeservices`)
       this.setState({ services: res.data })
     } catch (e) {
       showError(e)
@@ -59,7 +59,7 @@ export default class AddTask extends Component {
 
   loadEmployee = async () => {
     try {
-      const res = await axios.get(`${server}/employees`)
+      const res = await axios.get(`${server}/ativeemployees`)
       this.setState({ employees: res.data })
     } catch (e) {
       showError(e)

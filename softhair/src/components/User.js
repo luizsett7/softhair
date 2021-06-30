@@ -45,7 +45,7 @@ export default props => {
                   <TouchableOpacity>
                   <TouchableWithoutFeedback                                   
                 onPress={() => props.onUpdateTask(props)}>
-                        <Text style={styles.desc}>{props.name} - {props.ativo === 1 ? "Ativo" : "Inativo"}</Text>
+                        <Text style={styles.desc}>{props.name}{props.ativo === 1 ? "" : " - Inativo"}</Text>
                     </TouchableWithoutFeedback>
                     <Text style={styles.date}>E-mail: {props.email}</Text>                                     
                     <Text style={styles.date}>Função: {props.descricao}</Text>                                     

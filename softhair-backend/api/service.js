@@ -3,10 +3,18 @@ const moment = require('moment')
 module.exports = app => {
     const getServices = (req, res) => {
             app.db('services')                    
-                .orderBy('descricao')           
+                .orderBy('descricao')                       
                 .then(services => res.json(services))
                 .catch(err => res.status(400).json(err))               
     }
+
+    const getAtiveServices = (req, res) => {
+        app.db('services')                    
+            .orderBy('descricao')
+            .where('ativo', '=', '1')          
+            .then(services => res.json(services))
+            .catch(err => res.status(400).json(err))               
+}
 
     const getService = (req, res) => {
         app.db('services') 
@@ -30,19 +38,23 @@ module.exports = app => {
     const remove = (req, res) => {
         app.db('services')
             .where({ serviceIdPK: req.params.id })
-            .del()
-            .then(rowsDeleted => {
-                if (rowsDeleted > 0) {
-                    res.status(204).send()
-                } else {
-                    const msg = `Não foi encontrada task com id ${req.params.id}.`
-                    res.status(400).send(msg)
-                }
-            })
+            .update({ ativo: 0 })
+            .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
+            //.del()
+            // .then(rowsDeleted => {
+            //     if (rowsDeleted > 0) {
+            //         res.status(204).send()
+            //     } else {
+            //         const msg = `Não foi encontrada task com id ${req.params.id}.`
+            //         res.status(400).send(msg)
+            //     }
+            // })
+            // .catch(err => res.status(400).json(err))
     }
 
-    const seleciona = (req, res) => {        
+    const seleciona = (req, res) => { 
+        console.log(req.params.ativo)       
         app.db('services')
             .where({ serviceIdPK: req.params.id })
             .first()
@@ -53,18 +65,19 @@ module.exports = app => {
                 }
                 const descricao = req.params.descricao                
                 const valor = req.params.valor
-                update(req, res, descricao, valor)
+                const ativo = req.params.ativo
+                update(req, res, descricao, valor, ativo)
             })
             .catch(err => res.status(400).json(err))
     }
 
-    const update = (req, res, descricao, valor) => {        
+    const update = (req, res, descricao, valor, ativo) => {        
         app.db('services')
             .where({ serviceIdPK: req.params.id })
-            .update({ descricao, valor })
+            .update({ descricao, valor, ativo })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
     }
 
-    return { getServices, getService, save, remove, seleciona }
+    return { getServices, getService, getAtiveServices, save, remove, seleciona }
 }

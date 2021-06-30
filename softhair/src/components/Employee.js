@@ -33,7 +33,7 @@ export default props => {
                   <TouchableOpacity>
                   <TouchableWithoutFeedback                                   
                 onPress={() => props.onUpdateTask(props)}>
-                        <Text style={styles.desc}>{props.nome}</Text>
+                        <Text style={styles.desc}>{props.nome}{props.ativo === 1 ? "" : " - Inativo"}</Text>
                     </TouchableWithoutFeedback>
                     <Text style={styles.date}>{props.cargo}</Text>
                   </TouchableOpacity>

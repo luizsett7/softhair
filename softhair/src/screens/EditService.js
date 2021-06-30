@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, Alert, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Platform, Touchable, Button, TextInput } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import RNPickerSelect from 'react-native-picker-select';
+import { Picker } from '@react-native-picker/picker';
 
 import AsyncStorage from "@react-native-community/async-storage";
 import Icon from 'react-native-vector-icons/FontAwesome'
@@ -25,7 +26,8 @@ const initialState = {
     tasks: [],
     //date: new Date(), 
     showDatePicker: false,
-    showDateTimePicker: false
+    showDateTimePicker: false,
+    ativoDB: 1
 }
 
 export default class EditService extends Component {
@@ -43,16 +45,18 @@ export default class EditService extends Component {
         this.setState({
             showDoneTasks: savedState.showDoneTasks
         }, this.filterTasks)
-        this.loadTasks()        
+        this.loadTasks()
     }
 
     loadTasks = async () => {
         try {
-            const maxDate = moment()
-                .add({ days: this.props.daysAhead })
-                .format('YYYY-MM-DD 23:59:59')
-            const res = await axios.get(`${server}/tasks?date=${maxDate}`)
-            this.setState({ tasks: res.data }, this.filterTasks)
+            const { navigation } = this.props
+            let identificador = navigation.getParam('id', 'sem id')
+            const res = await axios.get(`${server}/services/${identificador}`)
+            this.setState({ tasks: res.data })
+            res.data.map((v) => {
+                this.setState({ ativoDB: v.ativo })            
+            })  
         } catch (e) {
             showError(e)
         }
@@ -119,7 +123,7 @@ export default class EditService extends Component {
         }
 
         try {
-            await axios.put(`${server}/services/${newTask.id}/${newTask.descricao}/${newTask.valor}/update`)
+            await axios.put(`${server}/services/${newTask.id}/${newTask.descricao}/${newTask.valor}/${newTask.ative}/update`)
             this.props.navigation.navigate('ServiceList')
         } catch (e) {
             showError(e)
@@ -212,12 +216,17 @@ export default class EditService extends Component {
         return dateTimePicker
     }
 
+    carrega_ativo = ativo => {
+        this.setState({ ativoDB: ativo })
+    }
+
     render() {
         const { navigation } = this.props
         const id = navigation.getParam('id', 'sem id')
         const descricao = this.state.descricao
         const valor = this.state.valor
-        const task = { id, descricao, valor }
+        const ative = this.state.ativoDB
+        const task = { id, descricao, valor, ative }
         return (
             <View style={styles.container}>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -259,6 +268,16 @@ export default class EditService extends Component {
                         placeholder="Informe o valor..."
                         onChangeText={valor => this.setState({ valor })}
                         value={`${this.state.valor}`} />
+                    <Text style={{ fontSize: 15, marginTop: 10, marginLeft: 10 }}>Ativo</Text>
+                    <View style={{ marginTop: 10, marginBottom: 10, width: '95%', height: 30, marginLeft: 10, backgroundColor: '#fbc4ab', borderRadius: 5 }}>
+                        <Picker style={{ width: '100%', height: 20 }}
+                            selectedValue={this.state.ativoDB}
+                            onValueChange={(ativo, itemIndex) => { this.carrega_ativo(ativo) }
+                            }>
+                            <Picker.Item key={1} label={`Sim`} value={1} />
+                            <Picker.Item key={0} label={`Não`} value={0} />
+                        </Picker>
+                    </View>
                     <TouchableOpacity
                         navigation={this.props.navigation} onPress={() => this.updateTask(task)}>
                         <Text style={styles.save}>Salvar</Text>

@@ -107,7 +107,7 @@ export default class ServiceList extends Component {
     deleteTask = async serviceIdPK => {
         console.log(serviceIdPK)
         try {
-            await axios.delete(`${server}/services/${serviceIdPK}`)
+            await axios.put(`${server}/services/${serviceIdPK}`)
             this.loadTasks()
         } catch (e) {
             showError(e)
