@@ -261,7 +261,7 @@ export default class EditUser extends Component {
         return (
             <View style={styles.container}>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('Home')}>
+                    <TouchableOpacity style={{ padding: 20 }} onPress={() => this.props.navigation.navigate('UserList')}>
                         <Icon name='bars'
                             size={20} color={commonStyles.colors.primary} />
                     </TouchableOpacity>

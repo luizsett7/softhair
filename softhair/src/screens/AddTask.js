@@ -25,7 +25,7 @@ import monthImage from '../../assets/imgs/month.jpg'
 import moment from 'moment'
 import 'moment/locale/pt-br'
 
-const initialState = { desc: '', date: new Date(), time: new Date(), showDatePicker: false, showDateTimePicker: false, services: [], employees: [], users: [], employee: 1, user: 1, service: 1 }
+const initialState = { desc: '', date: new Date(), time: new Date(), showDatePicker: false, showDateTimePicker: false, services: [], employees: [], users: [] }
 
 export default class AddTask extends Component {
 
@@ -77,15 +77,18 @@ export default class AddTask extends Component {
     this.setState({ ...initialState })
   }
 
-  addTask = async () => {
+  addTask = async () => {    
     try {
       await axios.post(`${server}/tasks`, {
-        desc: 'desc',
-        estimateAt: this.state.date,
-        doneAt: this.state.time,
+        desc: 'desc',        
+        //estimateAt: this.state.date,        
+        //doneAt: this.state.time,
+        estimateAt: moment(this.state.date).format("YYYY-MM-DD"),        
+        doneAt: moment(this.state.time).format("HH:mm:ss"),
+        userIdFK: this.state.user,
         clientIdFK: this.state.employee,
         serviceIdFK: this.state.service
-      })
+      })            
       this.props.navigation.navigate('Home')
       //this.setState({ showAddTask: false}, this.loadTasks)
     } catch (e) {
@@ -140,7 +143,7 @@ export default class AddTask extends Component {
       display="default"
       onChange={(_, time) => this.setState({ time, showDateTimePicker: false })}
       mode='time' />
-    const dateString = moment(this.state.time).format('h:mm:ss a')
+    const dateString = moment(this.state.time).format('HH:mm:ss')
     if (Platform.OS === 'android') {
       dateTimePicker = (
         <View>
@@ -169,12 +172,7 @@ export default class AddTask extends Component {
     this.setState({ service: service })
   }
 
-  render() {
-    let id_employee = 1
-    function carrega(param) {
-      id_employee = param
-      console.log(id_employee)
-    }
+  render() {   
     const today = moment().locale('pt-br').format('ddd, D [de] MMMM')
     return (
       <ScrollView style={styles.container}>

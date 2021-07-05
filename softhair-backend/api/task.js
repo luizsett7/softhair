@@ -6,16 +6,16 @@ module.exports = app => {
             : moment().endOf('day').toDate()
 
         if (req.user.id === 1) {
-            app.db('tasks')    
+            app.db('tasks')
                 .leftJoin('clients', 'tasks.clientIdFK', '=', 'clients.clientIdPK')
                 .leftJoin('users', 'tasks.userIdFK', '=', 'users.userIdPK')
                 .leftJoin('services', 'tasks.serviceIdFK', '=', 'services.serviceIdPK')
                 .where('tasks.estimateAt', '<=', date)
-                .orderBy('tasks.estimateAt')           
-                .then(tasks => res.json(tasks),                
-                )
-                .catch(err => res.status(400).json(err))                            
-        } else { 
+                .orderBy('tasks.estimateAt')
+                .then(tasks => res.json(tasks),
+            )
+                .catch(err => res.status(400).json(err))
+        } else {
             app.db('tasks')
                 .leftJoin('clients', 'tasks.clientIdFK', '=', 'clients.clientIdPK')
                 .leftJoin('users', 'tasks.userIdFK', '=', 'users.userIdPK')
@@ -29,35 +29,41 @@ module.exports = app => {
     }
 
     const getTask = (req, res) => {
-            app.db('tasks')
-                .where({ taskIdPK: req.params.id })                
-                .orderBy('estimateAt')
-                .then(tasks => res.json(tasks))
-                .catch(err => res.status(400).json(err))
+        app.db('tasks')
+            .where({ taskIdPK: req.params.id })
+            .orderBy('estimateAt')
+            .then(tasks => res.json(tasks))
+            .catch(err => res.status(400).json(err))
     }
 
-    const save = (req, res) => {                
-        req.body.userIdFK = req.user.id            
-        let dataMenor = moment(req.body.doneAt).subtract(30, 'minutes')
-        let dataInicial = moment(dataMenor).format()
-        let dataMaior = moment(req.body.doneAt).add(30, 'minutes')
-        let dataFinal = moment(dataMaior).format()                       
-                app.db('tasks')                
-                .where('doneAt', '>=', `${dataInicial}`) 
-                .where('doneAt', '<=', `${dataFinal}`)           
-                .first() 
-                .then((row) => {                                        
-                    if(row == undefined){ 
-                        console.log("insert")
-                        app.db('tasks')
+    const save = (req, res) => {
+        console.log(req.body.doneAt)
+        //req.body.userIdFK = req.user.id
+        let horaAtual = moment("2021-07-03T" + req.body.doneAt + "-03:00").format()
+        let horaMaior = moment(horaAtual).add(30, 'minutes')
+        let horaMenor = moment(horaAtual).subtract(30, 'minutes')
+        horaMaior = moment(horaMaior).format("HH:mm:ss")
+        horaMenor = moment(horaMenor).format("HH:mm:ss")
+        let data = moment(req.body.estimateAt).format("YYYY-MM-DD")
+        console.log(data)
+        console.log(horaMaior)
+        app.db('tasks')
+            .where('estimateAt', '=', `${data}`)
+            .andWhere('doneAt', '>=', `${horaMenor}`)
+            .andWhere('doneAt', '<=', `${horaMaior}`)
+            .first()
+            .then((row) => {
+                if (row == undefined) {
+                    console.log("insert")
+                    app.db('tasks')
                         .insert(req.body)
                         .then(_ => res.status(204).send())
-                        .catch(err => res.status(400).json(err)) 
-                    }else{                   
-                        console.log("existe")                       
-                        return res.status(400).json("Agendamento não permitido")                                                                       
-                    }
-                })
+                        .catch(err => res.status(400).json(err))
+                } else {
+                    console.log("existe")
+                    return res.status(400).json("Agendamento não permitido")
+                }
+            })
     }
 
     const remove = (req, res) => {
@@ -77,7 +83,6 @@ module.exports = app => {
     }
 
     const seleciona = (req, res) => {
-        console.log("**********"+req.params.id)
         app.db('tasks')
             //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
             .where({ taskIdPK: req.params.id })
@@ -89,23 +94,53 @@ module.exports = app => {
                 }
 
                 const desc = req.params.descricao
-                const estimateAt = req.params.estimateat
-                const doneAt = req.params.doneat
+                let estimateAt = req.params.estimateat
+                let doneAt = req.params.doneat
                 const clientIdFK = req.params.employee
-                const userIdFK = req.params.usuario                
-                const serviceIdFK = req.params.service                
+                const userIdFK = req.params.usuario
+                const serviceIdFK = req.params.service
                 update(req, res, desc, estimateAt, doneAt, clientIdFK, userIdFK, serviceIdFK)
             })
     }
 
     const update = (req, res, desc, estimateAt, doneAt, clientIdFK, userIdFK, serviceIdFK) => {
-        //estimateAt = '2021-06-03 19:14:42.465-03'
+        console.log(req.params.id, desc, estimateAt, doneAt, clientIdFK, userIdFK, serviceIdFK)
+        let horaAtual = doneAt
+        let hora = moment(horaAtual).format("HH:mm:ss")
+        let horaMaior = moment(horaAtual).add(30, 'minutes')
+        let horaMenor = moment(horaAtual).subtract(30, 'minutes')
+        horaMaior = moment(horaMaior).format("HH:mm:ss")
+        horaMenor = moment(horaMenor).format("HH:mm:ss")
+        let data = moment(estimateAt).format("YYYY-MM-DD")
+        estimateAt = data
+        doneAt = hora
+        console.log("Hora"+doneAt)
         app.db('tasks')
             //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
             .where({ taskIdPK: req.params.id })
             .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK, serviceIdFK })
             .then(_ => res.status(204).send())
             .catch(err => res.status(400).json(err))
+        // app.db('tasks')
+        //     .where({ taskIdPK: req.params.id })
+        //     .andWhere('estimateAt', '=', `${data}`)            
+        //     .andWhere('doneAt', '>=', `${horaMenor}`)
+        //     .andWhere('doneAt', '<=', `${horaMaior}`)
+        //     .first()
+        //     .then((row) => {
+        //         if (row == undefined) {
+        //             console.log("update")
+        //             app.db('tasks')
+        //                 //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
+        //                 .where({ taskIdPK: req.params.id })
+        //                 .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK, serviceIdFK })
+        //                 .then(_ => res.status(204).send())
+        //                 .catch(err => res.status(400).json(err))
+        //         } else {
+        //             console.log("existe")
+        //             return res.status(400).json("Agendamento não permitido")
+        //         }
+        //     })       
     }
 
     const updateTaskDoneAt = (req, res, doneAt) => {

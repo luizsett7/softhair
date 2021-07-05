@@ -12,11 +12,12 @@ export default props => {
 
     //const date = props.doneAt ? props.doneAt : props.estimateAt
     const date = props.estimateAt
-    const time = props.doneAt ? props.doneAt : props.estimateAt
+    let time = props.doneAt ? props.doneAt : props.estimateAt
     const formattedDate = moment(date).locale('pt-br')
         .format('ddd, D [de] MMMM')
-    const formattedTime = moment(time).locale('pt-br')
-        .format('h:mm a')
+    time = "2021-07-03T"+time+"-03:00"
+    const formattedTime = moment(time).locale('pt-br').format('HH:mm')
+    //const formattedTime = time
 
     const getRightContent = () => {
         return (
