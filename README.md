@@ -12,12 +12,18 @@ Passos para iniciar o aplicativo
 
 1º Instalar um emulador android como por exemplo o emulador do Android Studio
 
-2º Iniciar o emulador
+2º Instalar o Sistema gerenciador de banco de dados PostgreSQL
 
-3º Entrar na pasta softhair-backend pelo terminal e rodar o comando npm start para iniciar o servidor
+3º As informações para criar a base de dados estão no arquivo knexfile.js na raiz da pasta softhair-backend
 
-4º Entrar na pasta softhair pelo terminal e rodar o comando npx react-native start para iniciar o metro
+4º Entrar na pasta softhair-backend pelo terminal e rodar o comando npm start para iniciar o servidor
 
-5º Na pasta softhair pelo terminal rodar o comando npx react-native run-android para iniciar o aplicativo no emulador
+5º Rodar o comando knex migrate:latest para criar as tabelas no banco de dados
+
+6º Iniciar o emulador
+
+7º Entrar na pasta softhair pelo terminal e rodar o comando npx react-native start para iniciar o metro
+
+8º Na pasta softhair pelo terminal rodar o comando npx react-native run-android para iniciar o aplicativo no emulador
 
 
