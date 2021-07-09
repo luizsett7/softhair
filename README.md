@@ -5,7 +5,7 @@ Cesar E. Silva, Luiz Guilherme Setti Oliveira
 
 2021/6º.
 
-A área da beleza vem crescendo a cada dia, com o aumento no número de clientes e também quantidade de produtos vendidos movimentando a economia desse setor. O Brasil atualmente  o quarto no ranking mundial em consumo de produtos de higiene pessoal, perfumaria e cosméticos (FORBES)... leia mais na documentação.
+A área da beleza vem crescendo a cada dia, com o aumento no número de clientes e também quantidade de produtos vendidos movimentando a economia desse setor. O Brasil atualmente ocupa o quarto no ranking mundial em consumo de produtos de higiene pessoal, perfumaria e cosméticos (FORBES)... leia mais na documentação.
  
 Passos para iniciar o aplicativo
 
