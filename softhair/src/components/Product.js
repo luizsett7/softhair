@@ -85,12 +85,13 @@ const styles = StyleSheet.create({
     desc: {
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.mainText,
-        fontSize: 15
+        fontSize: 15,
+        fontWeight: 'bold'
     },
     date: {
         fontFamily: commonStyles.fontFamily,
         color: commonStyles.colors.subText,
-        fontSize: 12
+        fontSize: 15
     },
     right: {
         backgroundColor: 'red',

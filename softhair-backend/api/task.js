@@ -115,32 +115,32 @@ module.exports = app => {
         estimateAt = data
         doneAt = hora
         console.log("Hora"+doneAt)
-        app.db('tasks')
-            //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
-            .where({ taskIdPK: req.params.id })
-            .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK, serviceIdFK })
-            .then(_ => res.status(204).send())
-            .catch(err => res.status(400).json(err))
         // app.db('tasks')
+        //     //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
         //     .where({ taskIdPK: req.params.id })
-        //     .andWhere('estimateAt', '=', `${data}`)            
-        //     .andWhere('doneAt', '>=', `${horaMenor}`)
-        //     .andWhere('doneAt', '<=', `${horaMaior}`)
-        //     .first()
-        //     .then((row) => {
-        //         if (row == undefined) {
-        //             console.log("update")
-        //             app.db('tasks')
-        //                 //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
-        //                 .where({ taskIdPK: req.params.id })
-        //                 .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK, serviceIdFK })
-        //                 .then(_ => res.status(204).send())
-        //                 .catch(err => res.status(400).json(err))
-        //         } else {
-        //             console.log("existe")
-        //             return res.status(400).json("Agendamento não permitido")
-        //         }
-        //     })       
+        //     .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK, serviceIdFK })
+        //     .then(_ => res.status(204).send())
+        //     .catch(err => res.status(400).json(err))
+        app.db('tasks')
+            .where('taskIdPK', '<>', `${req.params.id}`)
+            .andWhere('estimateAt', '=', `${data}`)            
+            .andWhere('doneAt', '>=', `${horaMenor}`)
+            .andWhere('doneAt', '<=', `${horaMaior}`)
+            .first()
+            .then((row) => {
+                if (row == undefined) {
+                    console.log("update")
+                    app.db('tasks')
+                        //.where({ taskIdPK: req.params.id, userIdFK: req.user.id })
+                        .where({ taskIdPK: req.params.id })
+                        .update({ desc, estimateAt, doneAt, userIdFK, clientIdFK, serviceIdFK })
+                        .then(_ => res.status(204).send())
+                        .catch(err => res.status(400).json(err))
+                } else {
+                    console.log("existe")
+                    return res.status(400).json("Agendamento não permitido")
+                }
+            })       
     }
 
     const updateTaskDoneAt = (req, res, doneAt) => {
