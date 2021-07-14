@@ -1,5 +1,5 @@
 # softhair
-SoftHair - Aplicativo de Gestão de Salões de Beleza e Clínicas de Estética
+SoftHair - Aplicativo de Controle de Agenda de Salões de Beleza e Clínicas de Estética
 
 Cesar E. Silva, Luiz Guilherme Setti Oliveira
 
