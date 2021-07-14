@@ -5,7 +5,7 @@ Cesar E. Silva, Luiz Guilherme Setti Oliveira
 
 2021/6º.
 
-A área da beleza vem crescendo a cada dia, com o aumento no número de clientes e também quantidade de produtos vendidos movimentando a economia desse setor. O Brasil atualmente ocupa o quarto lugar no ranking mundial em consumo de produtos de higiene pessoal, perfumaria e cosméticos (FORBES)... leia mais na documentação.
+A área da beleza vem crescendo a cada dia, com o aumento no número de clientes e também quantidade de produtos vendidos movimentando a economia desse setor. O Brasil atualmente ocupa o quarto lugar no ranking mundial em consumo de produtos de higiene pessoal, perfumaria e cosméticos (FORBES). A aplicação SoftHair tem então como missão eliminar as agendas tradicionais de papel utilizadas em uma parte significativa dos salões de beleza e clínicas de estética, tornando mais ágil e fácil o controle dos agendamentos.
  
 Passos para iniciar o aplicativo 
 
