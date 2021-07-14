@@ -16,11 +16,14 @@ module.exports = app => {
             .first()
             .then(user => {
                 if (user) {
+                    // se tem usuário, permite passar, continua a requisição e coloca os dados dentro da requisição
                     done(null, { id: user.userIdPK, email: user.email })
                 } else {
+                    // false, usuário não autenticado, barra a requisição
                     done(null, false)
                 }
             })
+            // não autenticou o usuário e passou o erro
             .catch(err => done(err, false))
     })
 
